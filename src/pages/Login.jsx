@@ -1,5 +1,5 @@
 import React from "react";
-import { FaGoogle, FaGraduationCap, FaMicrosoft } from "react-icons/fa"
+import { FaGraduationCap} from "react-icons/fa"
 import LoginForm from "../components/LoginForm";
 
 export default function LoginPage() {
