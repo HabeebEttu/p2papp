@@ -46,7 +46,9 @@ export default function QuizzesPage() {
             </div>
           </div>
         </div>
+        {/* quiz grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* card 1 */}
           <div className="p-6 transition-shadow bg-white border shadow rounded-xl text-card-foreground hover:shadow-lg">
             <div className="mb-4">
               <img
@@ -100,6 +102,7 @@ export default function QuizzesPage() {
               </button>
             </div>
           </div>
+          {/* card 2 */}
           <div className="p-6 transition-shadow bg-white border shadow rounded-xl text-card-foreground hover:shadow-lg">
             <div className="mb-4">
               <img
@@ -153,6 +156,7 @@ export default function QuizzesPage() {
               </button>
             </div>
           </div>
+          {/* card 3 */}
           <div className="p-6 transition-shadow bg-white border shadow rounded-xl text-card-foreground hover:shadow-lg">
             <div className="mb-4">
               <img
@@ -207,11 +211,13 @@ export default function QuizzesPage() {
             </div>
           </div>
         </div>
+        {/* popular */}
         <div className="mt-12">
           <h2 className="mb-6 text-2xl font-bold text-gray-800">
             Most Popular This Week
           </h2>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* popular card */}
             <div className="p-6 bg-white border shadow rounded-xl text-card-foreground">
               <div className="flex items-start space-x-4">
                 <img
