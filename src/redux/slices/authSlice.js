@@ -1,15 +1,19 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import authService from "../../services/auth";
 
 export const login = createAsyncThunk(
     'auth/login',
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await authService.login(credentials);
-            localStorage.setItem("token", response.data.token);
+            console.log(response.data);
+            
+            localStorage.setItem("token", response.data['token']);
             localStorage.setItem("user", JSON.stringify(response.data.user));
+            return response.data
         } catch (error) {
             return rejectWithValue(
-              error.response?.data?.message || "Login failed"
+              error.response?.data?.message || "failed to connect to server"
             );
         }
     }
@@ -83,3 +87,5 @@ const authSlice = createSlice({
       });
   },
 });
+export const { logout, clearError } = authSlice.actions;
+export default authSlice.reducer ;

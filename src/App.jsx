@@ -5,6 +5,7 @@ import LoginPage from './pages/Login';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import QuizzesPage from './pages/QuizzesPage';
+import Article from './pages/Article';
 
 export default function App() {
   return (
@@ -19,8 +20,17 @@ export default function App() {
         }
       />
       <Route path="/login" element={<LoginPage />} />
-      <Route path='/profile' element={<ProfilePage/>}/>
-      <Route path ='/quizzes' element={<QuizzesPage/>}/>
+      <Route
+        path="/profile"
+        element={
+          <>
+            <Navbar />
+            <ProfilePage />
+          </>
+        }
+      />
+      <Route path="/quizzes" element={<QuizzesPage />} />
+      <Route path='/article/id' element = {<><Navbar/><Article/></>}/>
     </Routes>
   );
   

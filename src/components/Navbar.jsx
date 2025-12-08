@@ -11,10 +11,20 @@ import {
   FaSignOutAlt,
   FaUser,
 } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../redux/slices/authSlice";
 // import {} from "react-icons/fa"
 
 export default function Navbar() {
   const [profileIsOpen, setProfileIsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const handleLogout = function () {
+    dispatch(logout());
+    navigate("/login");
+  };
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 mx-auto max-w-7xl">
@@ -24,7 +34,9 @@ export default function Navbar() {
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600">
                 <FaGraduationCap className="text-xl text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">P2PLearn</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                <Link to={"/"}>P2PLearn</Link>{" "}
+              </h1>
             </div>
             {/* <div className="hidden space-x-1 md:flex">
               <button className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 shadow hover:bg-primary/90 h-9 px-4 py-2 bg-blue-50 text-blue-700 border-blue-200 !rounded-button whitespace-nowrap cursor-pointer">
@@ -61,9 +73,8 @@ export default function Navbar() {
             <div
               className="relative"
               role="button"
-              autoFocus="true"
+              autoFocus={true}
               onClick={() => setProfileIsOpen(!profileIsOpen)}
-              
             >
               <div
                 id="profile-dropdown-trigger"
@@ -74,7 +85,9 @@ export default function Navbar() {
                     <div className="py-2">
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaUser className="w-5 mr-3 text-center text-blue-600" />
-                        <span className="font-medium">View Profile</span>
+                        <span className="font-medium">
+                          <Link to={"/profile"}>View Profile</Link>
+                        </span>
                       </div>
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaCog className="w-5 mr-3 text-center text-gray-600" />
@@ -89,10 +102,13 @@ export default function Navbar() {
                         <span className="font-medium">Help &amp; Support</span>
                       </div>
                       <hr className="my-2 border-gray-200" />
-                      <div className="flex items-center px-4 py-3 text-red-600 transition-colors cursor-pointer hover:bg-gray-50">
+                      <button
+                        className="flex items-center w-full px-4 py-3 text-red-600 transition-colors cursor-pointer hover:bg-gray-50"
+                        onClick={handleLogout}
+                      >
                         <FaSignOutAlt className="w-5 mr-3 text-center text-red-600" />
                         <span className="font-medium">Sign Out</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 ) : (
@@ -105,9 +121,7 @@ export default function Navbar() {
                     className="object-cover w-full h-full"
                   />
                 </span>
-                <span className="hidden font-medium text-gray-900 sm:block">
-                 
-                </span>
+                <span className="hidden font-medium text-gray-900 sm:block"></span>
                 <FaChevronDown className="text-sm text-gray-500 transition-transform " />
               </div>
             </div>
