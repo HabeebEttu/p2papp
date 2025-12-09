@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import QuizzesPage from './pages/QuizzesPage';
 import Article from './pages/Article';
+import SignUp from './pages/SignUp';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           </>
         }
       />
+      <Route path='/signup' element={<SignUp/>}/>
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/profile"
