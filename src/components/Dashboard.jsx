@@ -1,7 +1,24 @@
 import React from 'react'
-import { FaRocket } from 'react-icons/fa';
+import { useSelector } from "react-redux";
+import { FaRocket } from "react-icons/fa";
 
 export default function Dashboard() {
+  const { user } = useSelector((state) => state.auth);
+
+  // Fallback values if stats don't exist
+  const stats = {
+    totalXP: user?.profile?.xp || 0,
+    articlesRead: user?.profile?.articlesRead || 0,
+    quizzesCompleted: user?.profile?.quizzesCompleted || 0,
+  };
+
+  const firstName = user?.profile?.firstName || "";
+  const lastName = user?.profile?.lastName || "";
+  const displayName =
+    firstName && lastName
+      ? `${firstName} ${lastName}`
+      : user?.username || "User";
+
   return (
     <div className="relative p-8 overflow-hidden bg-white border shadow rounded-xl text-card-foreground">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-600/10"></div>
@@ -9,27 +26,33 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="mb-2 text-3xl font-bold text-gray-900">
-              Welcome back, Alex Johnson!
+              Welcome back, {displayName}!
             </h2>
             <p className="text-lg text-gray-600">
               Ready to continue your learning journey?
             </p>
           </div>
           <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl">
-            <FaRocket className='text-2xl text-white'/>
+            <FaRocket className="text-2xl text-white" />
           </div>
         </div>
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="mb-1 text-3xl font-bold text-blue-600">2,450</div>
+            <div className="mb-1 text-3xl font-bold text-blue-600">
+              {stats.totalXP.toLocaleString()}
+            </div>
             <div className="text-sm text-gray-500">Total XP</div>
           </div>
           <div className="text-center">
-            <div className="mb-1 text-3xl font-bold text-purple-600">12</div>
+            <div className="mb-1 text-3xl font-bold text-purple-600">
+              {stats.articlesRead}
+            </div>
             <div className="text-sm text-gray-500">Articles Read</div>
           </div>
           <div className="text-center">
-            <div className="mb-1 text-3xl font-bold text-green-600">24</div>
+            <div className="mb-1 text-3xl font-bold text-green-600">
+              {stats.quizzesCompleted}
+            </div>
             <div className="text-sm text-gray-500">Quizzes Completed</div>
           </div>
         </div>

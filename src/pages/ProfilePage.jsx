@@ -17,10 +17,17 @@ import {
   FaTrophy,
   FaUsers,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 export default function ProfilePage() {
   const [currentTab, setCurrentTab] = useState("articles");
   const [isProfileEditing, setIsProfileEditing] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const username = user?.profile?.username
+  const firstName = user?.profile?.firstName
+  const lastName = user?.profile?.lastName
+  const displayName = lastName + " " + firstName || username
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="max-w-4xl px-4 py-8 mx-auto">
@@ -38,7 +45,7 @@ export default function ProfilePage() {
               </span>
               <div className="flex-1">
                 <h1 className="mb-2 text-3xl font-bold text-gray-800">
-                  Alex Johnson
+                 {displayName}
                 </h1>
                 <p className="mb-2 text-gray-600">
                   Full Stack Developer &amp; Learning Enthusiast

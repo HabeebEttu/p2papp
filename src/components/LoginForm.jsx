@@ -2,7 +2,7 @@ import React,{useEffect} from 'react'
 import { FaGoogle, FaMicrosoft } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function LoginForm() {
   const dispatch = useDispatch()
@@ -26,7 +26,7 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit}>
       <div className="space-y-6">
         {error && (
-          <div className="p-3 mb-4 text-red-700 bg-red-100 rounded-md border border-red-600">
+          <div className="p-3 mb-4 text-red-700 bg-red-100 border border-red-600 rounded-md">
             {error}
           </div>
         )}
@@ -96,11 +96,12 @@ export default function LoginForm() {
         </div>
         <div className="pt-4 text-center">
           <button
-            type="submit"
+            type="button"
             className="inline-flex items-center justify-center gap-2 rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 shadow h-9 px-4 py-2 text-blue-600 hover:text-blue-800 bg-transparent hover:bg-blue-50 !rounded-button whitespace-nowrap cursor-pointer font-medium"
             disabled={loading}
-          >
+          ><Link to={'/signup'}>
             Already have an account? Sign In
+            </Link>
           </button>
         </div>
       </div>
