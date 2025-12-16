@@ -35,7 +35,7 @@ export default function Navbar() {
                 <FaGraduationCap className="text-xl text-white" />
               </div>
               <h1 className="text-xl font-bold text-gray-900">
-                <Link to={"/"}>P2PLearn</Link>{" "}
+                <Link to={"/dashboard"}>P2PLearn</Link>{" "}
               </h1>
             </div>
             {/* <div className="hidden space-x-1 md:flex">
@@ -83,12 +83,13 @@ export default function Navbar() {
                 {profileIsOpen ? (
                   <div className="absolute right-0 z-50 w-56 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg top-full">
                     <div className="py-2">
+                       <Link to={"/profile"}>
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaUser className="w-5 mr-3 text-center text-blue-600" />
                         <span className="font-medium">
-                          <Link to={"/profile"}>View Profile</Link>
+                         View Profile
                         </span>
-                      </div>
+                      </div></Link>
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaCog className="w-5 mr-3 text-center text-gray-600" />
                         <span className="font-medium">Account Settings</span>

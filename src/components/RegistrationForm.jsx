@@ -50,7 +50,7 @@ export default function RegistrationForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/dashboard ");
     }
   }, [isAuthenticated, navigate]);
 

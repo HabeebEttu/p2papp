@@ -10,7 +10,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
    useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
   const handleSubmit =async (e) => {

@@ -2,29 +2,29 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import authService from "../../services/auth";
 
 export const login = createAsyncThunk(
-    'auth/login',
-    async (credentials, { rejectWithValue }) => {
-        try {
-            const response = await authService.login(credentials);
-            console.log(response.data);
-            
-            localStorage.setItem("token", response.data['token']);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-            return response.data
-        } catch (error) {
-            return rejectWithValue(
-              error.response?.data?.message || "failed to connect to server"
-            );
-        }
+  "auth/login",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await authService.login(credentials);
+      console.log(response.data);
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "failed to connect to server"
+      );
     }
-)
+  }
+);
+
 export const register = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
-
     try {
       const response = await authService.register(userData);
-      localStorage.setItem("token", response.data["token"]);
+      localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       return response.data;
     } catch (error) {
@@ -34,6 +34,7 @@ export const register = createAsyncThunk(
     }
   }
 );
+
 const initialState = {
   user: JSON.parse(localStorage.getItem("user")) || null,
   token: localStorage.getItem("token") || null,
@@ -54,6 +55,18 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    // ✅ ADD THIS: Sync profile updates to auth state and localStorage
+    syncProfileUpdate: (state, action) => {
+      if (state.user) {
+        
+        state.user = {
+          ...state.user,
+          profile: action.payload,
+        };
+        // ✅ Update localStorage
+        localStorage.setItem("user", JSON.stringify(state.user));
+      }
     },
   },
   extraReducers: (builder) => {
@@ -88,5 +101,6 @@ const authSlice = createSlice({
       });
   },
 });
-export const { logout, clearError } = authSlice.actions;
-export default authSlice.reducer ;
+
+export const { logout, clearError, syncProfileUpdate } = authSlice.actions;
+export default authSlice.reducer;

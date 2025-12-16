@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "../../services/userService";
 
+// ✅ DON'T import anything from authSlice here
 
 export const fetchUserProfile = createAsyncThunk(
   "user/fetchProfile",
@@ -20,7 +21,19 @@ export const updateUserProfile = createAsyncThunk(
   "user/updateProfile",
   async ({ userId, profileData, avatarFile }, { rejectWithValue }) => {
     try {
-      const response = await userService.updateProfile(userId, profileData, avatarFile);
+      const response = await userService.updateProfile(
+        userId,
+        profileData,
+        avatarFile
+      );
+
+      // ✅ Update localStorage directly here
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser) {
+        storedUser.profile = response.data;
+        localStorage.setItem("user", JSON.stringify(storedUser));
+      }
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -30,12 +43,19 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
-
 export const uploadAvatar = createAsyncThunk(
   "user/uploadAvatar",
   async ({ userId, file }, { rejectWithValue }) => {
     try {
       const response = await userService.uploadAvatar(userId, file);
+
+      // ✅ Update localStorage directly here
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser && storedUser.profile) {
+        storedUser.profile.avatarUrl = response.data;
+        localStorage.setItem("user", JSON.stringify(storedUser));
+      }
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -99,7 +119,6 @@ const userSlice = createSlice({
         state.success = false;
       });
 
-
     builder
       .addCase(uploadAvatar.pending, (state) => {
         state.loading = true;
@@ -107,7 +126,9 @@ const userSlice = createSlice({
       })
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile = action.payload;
+        if (state.profile) {
+          state.profile.avatarUrl = action.payload;
+        }
         state.success = true;
       })
       .addCase(uploadAvatar.rejected, (state, action) => {

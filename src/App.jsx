@@ -7,12 +7,13 @@ import ProfilePage from './pages/ProfilePage';
 import QuizzesPage from './pages/QuizzesPage';
 import Article from './pages/Article';
 import SignUp from './pages/SignUp';
+import LandingPage from './pages/LandingPage';
 
 export default function App() {
   return (
     <Routes>
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <>
             <Navbar />
@@ -20,7 +21,8 @@ export default function App() {
           </>
         }
       />
-      <Route path='/signup' element={<SignUp/>}/>
+      <Route path='/signup' element={<SignUp />} />
+      <Route path='/' element={ <LandingPage/>} />
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/profile"
