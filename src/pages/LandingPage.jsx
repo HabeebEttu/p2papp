@@ -16,6 +16,9 @@ import {
   FaStar,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import heroImage from "../assets/hero.jpg"
+import featureImage from "../assets/img1.jpg"
+import manualImage from "../assets/img2.jpg";
 
 export default function LandingPage() {
   return (
@@ -135,7 +138,7 @@ function Hero() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-3xl"></div>
               <img
-                src="https://readdy.ai/api/search-image?query=modern%20online%20learning%20platform%20dashboard%20interface%20showing%20students%20collaborating%20and%20sharing%20knowledge%20with%20clean%20professional%20design%20elements%20on%20gradient%20background%20futuristic%20education%20technology&width=600&height=400&seq=heromain&orientation=landscape"
+                src={heroImage}
                 alt="P2PLearn Platform"
                 className="relative w-full h-auto shadow-2xl rounded-2xl"
               />
@@ -175,7 +178,7 @@ function FeaturesCard() {
       <div className="p-6 transition-shadow bg-white border shadow rounded-xl text-card-foreground hover:shadow-lg">
         <div className="mb-4">
           <img
-            src="https://readdy.ai/api/search-image?query=$%7Bfeature.image%7D&width=300&height=200&seq=feature5&orientation=landscape"
+            src={featureImage}
             alt="Progress Analytics"
             className="object-cover w-full h-40 mb-4 rounded-lg"
           />
@@ -330,7 +333,7 @@ function Manual() {
             <div className="text-center">
               <div className="mb-6">
                 <img
-                  src="https://readdy.ai/api/search-image?query=$%7Bstep.image%7D&width=300&height=250&seq=step0&orientation=landscape"
+                  src={manualImage}
                   alt="Sign Up &amp; Explore"
                   className="object-cover w-full h-48 mb-6 rounded-xl"
                 />

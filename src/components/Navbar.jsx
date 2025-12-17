@@ -80,16 +80,15 @@ export default function Navbar() {
                 id="profile-dropdown-trigger"
                 className="flex items-center p-2 space-x-3 rounded-lg cursor-pointer hover:bg-gray-100"
               >
-                {profileIsOpen ? (
+                {profileIsOpen && (
                   <div className="absolute right-0 z-50 w-56 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg top-full">
                     <div className="py-2">
-                       <Link to={"/profile"}>
-                      <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
-                        <FaUser className="w-5 mr-3 text-center text-blue-600" />
-                        <span className="font-medium">
-                         View Profile
-                        </span>
-                      </div></Link>
+                      <Link to={"/profile"}>
+                        <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
+                          <FaUser className="w-5 mr-3 text-center text-blue-600" />
+                          <span className="font-medium">View Profile</span>
+                        </div>
+                      </Link>
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaCog className="w-5 mr-3 text-center text-gray-600" />
                         <span className="font-medium">Account Settings</span>
@@ -112,9 +111,7 @@ export default function Navbar() {
                       </button>
                     </div>
                   </div>
-                ) : (
-                  ""
-                )}
+                ) }
                 <span className="relative flex w-8 h-8 overflow-hidden rounded-full shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
                   <img
                     src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20person%20with%20friendly%20smile%20against%20clean%20white%20background%20modern%20portrait%20photography%20style&amp;width=100&amp;height=100&amp;seq=avatar1&amp;orientation=squarish"
