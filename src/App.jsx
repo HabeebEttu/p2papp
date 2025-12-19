@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Navbar from './components/Navbar';
 import LoginPage from './pages/Login';
+import AdminDashboard from './pages/AdminDashboard';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import QuizzesPage from './pages/QuizzesPage';
@@ -34,7 +35,8 @@ export default function App() {
         }
       />
       <Route path="/quizzes" element={<QuizzesPage />} />
-      <Route path='/article/id' element = {<><Navbar/><Article/></>}/>
+      <Route path='/article/id' element={<><Navbar /><Article /></>} />
+      <Route path = '/admin' element={<AdminDashboard/>}/>
     </Routes>
   );
   
