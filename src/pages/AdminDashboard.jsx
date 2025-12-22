@@ -2,18 +2,23 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
+import { dashboardHome, deleteUser } from "../redux/slices/adminSlice";
+
 
 export default function AdminDashboard() {
   const [currentView, setCurrentView] = useState("dashboard");
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {users,articles,quizzes,loading,error} = useSelector((state)=>state.admin)
 
-  // Check if user is admin
   useEffect(() => {
-    if (!user || !user.admin) {
-      navigate("/");
+    if (!user?.admin) {
+      navigate("/dashboard");
     }
+    dispatch(dashboardHome())
+    console.log(users)
+    console.log(articles)
   }, [user, navigate]);
 
   const handleLogout = () => {
@@ -36,8 +41,8 @@ export default function AdminDashboard() {
           />
           <main className="relative flex flex-col flex-1 h-full overflow-hidden bg-slate-50">
             <Header currentView={currentView} user={user} />
-            {currentView === "dashboard" && <DashboardView />}
-            {currentView === "users" && <UsersView />}
+            {currentView === "dashboard" && <DashboardView users={users} articles={articles} quizzes={quizzes}/>}
+            {currentView === "users" && <UsersView users={users} loading={loading}/>}
             {currentView === "articles" && <ArticlesView />}
             {currentView === "quizzes" && <QuizzesView />}
             {currentView === "videos" && <VideosView />}
@@ -116,7 +121,7 @@ function Header({ currentView, user }) {
     reports: "Reports & Analytics",
   };
 
-  return (<>
+  return (
     <header className="z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shrink-0">
       <div className="items-center hidden gap-2 sm:flex">
     <a className="text-sm font-medium text-slate-500 hover:text-slate-900"
@@ -149,19 +154,26 @@ function Header({ currentView, user }) {
           </span>
         </button>
       </div>
-    </header></>
+    </header>
   );
 }
 
-// Dashboard View
-function DashboardView() {
+function DashboardView({ users, articles, quizzes }) {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalArticles: 0,
     totalQuizzes: 0,
     totalVideos: 0,
   });
-
+  console.log(stats.totalUsers);
+  if (stats.totalUsers != users.length || stats.totalArticles !=articles.length || stats.totalQuizzes != quizzes.length) {
+    setStats({
+      totalUsers: users.length,
+      totalArticles: articles.length,
+      totalQuizzes: quizzes.length,
+      totalVideos: 0,
+    });
+  }
   const dashboardCards = [
     {
       icon: "group",
@@ -262,11 +274,16 @@ function RecentActivityWidget() {
     </div>
   );
 }
-
-// Users View
-function UsersView() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const handleDeleteUser = async (userId) => {
+  const dispatch = useDispatch
+  try {
+    await dispatch(deleteUser({userId})).unwrap()
+    await dispatch(dashboardHome)
+  } catch (error) {
+    console.error("Error failed to delete user",error)
+  }
+}
+function UsersView({users,loading}) {
 
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
@@ -311,19 +328,26 @@ function UsersView() {
                       key={user.id}
                       className="transition-colors border-b border-slate-100 hover:bg-slate-50"
                     >
-                      <td className="p-4 font-medium text-slate-900">
+                      <td className="px-4 py-2 font-medium text-slate-900">
                         {user.username}
                       </td>
-                      <td className="p-4 text-slate-500">{user.email}</td>
-                      <td className="p-4 text-slate-500">{user.xp}</td>
-                      <td className="p-4 text-slate-500">{user.rank}</td>
-                      <td className="p-4 text-right">
+                      <td className="px-4 py-2 text-slate-500">{user.email}</td>
+                      <td className="px-4 py-2 text-slate-500">
+                        {user?.profile?.xp}
+                      </td>
+                      <td className="px-4 py-2 text-slate-500">
+                        {user?.profile?.rank}
+                      </td>
+                      <td className="px-4 py-2 text-right">
                         <button className="p-2 text-slate-500 hover:text-blue-600">
                           <span className="material-symbols-outlined text-[20px]">
                             edit
                           </span>
                         </button>
-                        <button className="p-2 text-slate-500 hover:text-red-600">
+                        <button
+                          className="p-2 text-slate-500 hover:text-red-600"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
                           <span className="material-symbols-outlined text-[20px]">
                             delete
                           </span>

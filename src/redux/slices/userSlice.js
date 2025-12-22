@@ -27,7 +27,6 @@ export const updateUserProfile = createAsyncThunk(
         avatarFile
       );
 
-      // ✅ Update localStorage directly here
       const storedUser = JSON.parse(localStorage.getItem("user"));
       if (storedUser) {
         storedUser.profile = response.data;

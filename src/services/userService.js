@@ -10,7 +10,6 @@ const userService = {
   updateProfile: async (userId, profileData, avatarFile) => {
     const formData = new FormData();
 
-    // Create a ProfileDto JSON object with the profile data
     const profileDtoJson = JSON.stringify({
       firstName: profileData.firstName || "",
       lastName: profileData.lastName || "",

@@ -36,7 +36,7 @@ export const register = createAsyncThunk(
 );
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem("user")) || null,
+  user:  JSON.parse(localStorage.getItem("user")) ||  null,
   token: localStorage.getItem("token") || null,
   isAuthenticated: !!localStorage.getItem("token"),
   loading: false,
@@ -64,7 +64,6 @@ const authSlice = createSlice({
           ...state.user,
           profile: action.payload,
         };
-        // ✅ Update localStorage
         localStorage.setItem("user", JSON.stringify(state.user));
       }
     },
