@@ -47,8 +47,6 @@ export const uploadAvatar = createAsyncThunk(
   async ({ userId, file }, { rejectWithValue }) => {
     try {
       const response = await userService.uploadAvatar(userId, file);
-
-      // ✅ Update localStorage directly here
       const storedUser = JSON.parse(localStorage.getItem("user"));
       if (storedUser && storedUser.profile) {
         storedUser.profile.avatarUrl = response.data;

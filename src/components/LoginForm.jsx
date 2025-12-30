@@ -3,6 +3,7 @@ import { FaGoogle, FaMicrosoft } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export default function LoginForm() {
   const dispatch = useDispatch()
@@ -21,6 +22,11 @@ export default function LoginForm() {
     };
     if(credentials.username=='' || credentials.password =='')return
     dispatch(login(credentials))
+    if (error) {
+      toast.error("Failed to sign in")
+    } else {
+      toast.success("Sign in Sucessful")
+    }
   }
   return (
     <form onSubmit={handleSubmit}>

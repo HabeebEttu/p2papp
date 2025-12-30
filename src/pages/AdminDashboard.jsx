@@ -3,22 +3,47 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import { dashboardHome, deleteUser } from "../redux/slices/adminSlice";
-
+import { toast } from "react-toastify";
+import { useConfirm } from "../hooks/Confirm";
+import {
+  FaTachometerAlt,
+  FaUsers,
+  FaNewspaper,
+  FaQuestionCircle,
+  FaPlayCircle,
+  FaChartBar,
+  FaBell,
+  FaBars,
+  FaUserPlus,
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaTimes,
+  FaStar,
+  FaEye,
+  FaCalendarAlt,
+  FaDownload,
+  FaSignOutAlt,
+  FaBan
+} from "react-icons/fa";
+import CreateArticleModal from "../components/ArticleModal";
 
 export default function AdminDashboard() {
   const [currentView, setCurrentView] = useState("dashboard");
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {users,articles,quizzes,loading,error} = useSelector((state)=>state.admin)
+  const { users, articles, quizzes, loading, error } = useSelector(
+    (state) => state.admin
+  );
 
   useEffect(() => {
     if (!user?.admin) {
       navigate("/dashboard");
     }
-    dispatch(dashboardHome())
-    console.log(users)
-    console.log(articles)
+    dispatch(dashboardHome());
+    console.log(users);
+    console.log(articles);
   }, [user, navigate]);
 
   const handleLogout = () => {
@@ -28,10 +53,6 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-      />
       <div className="overflow-hidden antialiased bg-slate-50 text-slate-900">
         <div className="flex w-full h-screen">
           <Sidebar
@@ -41,8 +62,16 @@ export default function AdminDashboard() {
           />
           <main className="relative flex flex-col flex-1 h-full overflow-hidden bg-slate-50">
             <Header currentView={currentView} user={user} />
-            {currentView === "dashboard" && <DashboardView users={users} articles={articles} quizzes={quizzes}/>}
-            {currentView === "users" && <UsersView users={users} loading={loading}/>}
+            {currentView === "dashboard" && (
+              <DashboardView
+                users={users}
+                articles={articles}
+                quizzes={quizzes}
+              />
+            )}
+            {currentView === "users" && (
+              <UsersView users={users} loading={loading} user={user} />
+            )}
             {currentView === "articles" && <ArticlesView />}
             {currentView === "quizzes" && <QuizzesView />}
             {currentView === "videos" && <VideosView />}
@@ -56,12 +85,12 @@ export default function AdminDashboard() {
 
 function Sidebar({ currentView, setCurrentView, onLogout }) {
   const menuItems = [
-    { id: "dashboard", icon: "dashboard", label: "Dashboard" },
-    { id: "users", icon: "group", label: "Users" },
-    { id: "articles", icon: "article", label: "Articles" },
-    { id: "quizzes", icon: "quiz", label: "Quizzes" },
-    { id: "videos", icon: "play_circle", label: "Videos" },
-    { id: "reports", icon: "bar_chart", label: "Reports" },
+    { id: "dashboard", icon: FaTachometerAlt, label: "Dashboard" },
+    { id: "users", icon: FaUsers, label: "Users" },
+    { id: "articles", icon: FaNewspaper, label: "Articles" },
+    { id: "quizzes", icon: FaQuestionCircle, label: "Quizzes" },
+    { id: "videos", icon: FaPlayCircle, label: "Videos" },
+    { id: "reports", icon: FaChartBar, label: "Reports" },
   ];
 
   return (
@@ -82,28 +111,30 @@ function Sidebar({ currentView, setCurrentView, onLogout }) {
             </div>
           </div>
           <nav className="flex flex-col gap-2">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
-                  currentView === item.id
-                    ? "bg-blue-600 text-white shadow-sm shadow-blue-500/30"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                }`}
-                onClick={() => setCurrentView(item.id)}
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {item.icon}
-                </span>
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                    currentView === item.id
+                      ? "bg-blue-600 text-white shadow-sm shadow-blue-500/30"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                  onClick={() => setCurrentView(item.id)}
+                >
+                  <Icon className="text-[20px]" />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
         <button
           onClick={onLogout}
-          className="flex items-center justify-center w-full h-10 px-4 overflow-hidden text-sm font-bold transition-colors border rounded-lg cursor-pointer bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
+          className="flex items-center justify-center w-full h-10 gap-2 px-4 overflow-hidden text-sm font-bold transition-colors border rounded-lg cursor-pointer bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
         >
+          <FaSignOutAlt />
           <span className="truncate">Logout</span>
         </button>
       </div>
@@ -124,7 +155,8 @@ function Header({ currentView, user }) {
   return (
     <header className="z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shrink-0">
       <div className="items-center hidden gap-2 sm:flex">
-    <a className="text-sm font-medium text-slate-500 hover:text-slate-900"
+      <a  
+          className="text-sm font-medium text-slate-500 hover:text-slate-900"
           href="/"
         >
           Home
@@ -135,13 +167,11 @@ function Header({ currentView, user }) {
         </span>
       </div>
       <button className="md:hidden text-slate-900">
-        <span className="material-symbols-outlined">menu</span>
+        <FaBars className="text-[24px]" />
       </button>
       <div className="flex items-center gap-3">
         <button className="relative p-2 transition-colors rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100">
-          <span className="material-symbols-outlined text-[24px]">
-            notifications
-          </span>
+          <FaBell className="text-[24px]" />
           <span className="absolute bg-red-500 rounded-full top-2 right-2 size-2 ring-2 ring-white"></span>
         </button>
         <div className="w-px h-6 mx-1 bg-slate-200"></div>
@@ -165,33 +195,34 @@ function DashboardView({ users, articles, quizzes }) {
     totalQuizzes: 0,
     totalVideos: 0,
   });
-  console.log(stats.totalUsers);
-  if (stats.totalUsers != users.length || stats.totalArticles !=articles.length || stats.totalQuizzes != quizzes.length) {
+  
+  useEffect(() => {
     setStats({
       totalUsers: users.length,
       totalArticles: articles.length,
       totalQuizzes: quizzes.length,
       totalVideos: 0,
     });
-  }
+  }, [users, articles, quizzes]);
+
   const dashboardCards = [
     {
-      icon: "group",
+      icon: FaUsers,
       title: "Total Users",
       value: stats.totalUsers,
     },
     {
-      icon: "article",
+      icon: FaNewspaper,
       title: "Total Articles",
       value: stats.totalArticles,
     },
     {
-      icon: "quiz",
+      icon: FaQuestionCircle,
       title: "Total Quizzes",
       value: stats.totalQuizzes,
     },
     {
-      icon: "play_circle",
+      icon: FaPlayCircle,
       title: "Total Videos",
       value: stats.totalVideos,
     },
@@ -225,10 +256,12 @@ function DashboardHeader() {
       </div>
       <div className="flex items-center gap-3">
         <button className="flex items-center h-10 gap-2 px-4 text-sm font-medium transition-colors bg-white border rounded-lg shadow-sm border-slate-200 text-slate-700 hover:bg-slate-50">
-          <span className="material-symbols-outlined text-[20px]">
-            calendar_today
-          </span>
+          <FaCalendarAlt className="text-[20px]" />
           <span>This Month</span>
+        </button>
+        <button className="flex items-center h-10 gap-2 px-4 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700">
+          <FaDownload className="text-[20px]" />
+          <span>Export</span>
         </button>
       </div>
     </div>
@@ -236,11 +269,12 @@ function DashboardHeader() {
 }
 
 function DashboardCard({ title, value, icon }) {
+  const Icon = icon;
   return (
     <div className="flex flex-col justify-between h-32 p-5 pb-2 transition-colors bg-white border shadow-sm rounded-xl border-slate-200 hover:border-blue-300 group">
       <div className="flex items-start justify-between">
         <div className="p-2 text-blue-600 transition-colors bg-blue-100 rounded-lg group-hover:bg-blue-600 group-hover:text-white">
-          <span className="material-symbols-outlined">{icon}</span>
+          <Icon className="text-2xl" />
         </div>
       </div>
       <div>
@@ -274,16 +308,28 @@ function RecentActivityWidget() {
     </div>
   );
 }
-const handleDeleteUser = async (userId) => {
-  const dispatch = useDispatch
-  try {
-    await dispatch(deleteUser({userId})).unwrap()
-    await dispatch(dashboardHome)
-  } catch (error) {
-    console.error("Error failed to delete user",error)
-  }
-}
-function UsersView({users,loading}) {
+
+function UsersView({ users, loading, user }) {
+  const dispatch = useDispatch();
+  const { confirm, ConfirmDialog } = useConfirm();
+  
+  const handleDeleteUser = async (userId) => {
+    const ok = await confirm("Do you really want to delete this user");
+    if (ok) {
+      try {
+        if (userId != user?.id) {
+          await dispatch(deleteUser({ userId })).unwrap();
+          toast.success("User deleted successfully");
+          await dispatch(dashboardHome());
+        } else {
+          toast.error("Cannot delete current user");
+        }
+      } catch (error) {
+        toast.error("Failed to delete user");
+        console.error("Error failed to delete user", error);
+      }
+    }
+  };
 
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
@@ -291,14 +337,13 @@ function UsersView({users,loading}) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-slate-900">User Management</h2>
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-            <span className="material-symbols-outlined text-[20px]">
-              person_add
-            </span>
+            <FaUserPlus className="text-[20px]" />
             Add User
           </button>
         </div>
         <div className="overflow-hidden bg-white border shadow-sm rounded-xl border-slate-200">
           <div className="overflow-x-auto">
+            <ConfirmDialog />
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-xs tracking-wider uppercase bg-slate-50 text-slate-500">
@@ -333,24 +378,20 @@ function UsersView({users,loading}) {
                       </td>
                       <td className="px-4 py-2 text-slate-500">{user.email}</td>
                       <td className="px-4 py-2 text-slate-500">
-                        {user?.profile?.xp}
+                        {user?.profile?.xp || 0}
                       </td>
-                      <td className="px-4 py-2 text-slate-500">
-                        {user?.profile?.rank}
+                      <td className="px-4 py-2 capitalize text-slate-500">
+                        {user?.profile?.rank || "N/A"}
                       </td>
                       <td className="px-4 py-2 text-right">
                         <button className="p-2 text-slate-500 hover:text-blue-600">
-                          <span className="material-symbols-outlined text-[20px]">
-                            edit
-                          </span>
+                          <FaBan className="text-[15px]" />
                         </button>
                         <button
                           className="p-2 text-slate-500 hover:text-red-600"
                           onClick={() => handleDeleteUser(user.id)}
                         >
-                          <span className="material-symbols-outlined text-[20px]">
-                            delete
-                          </span>
+                          <FaTrash className="text-[15px]" />
                         </button>
                       </td>
                     </tr>
@@ -365,7 +406,6 @@ function UsersView({users,loading}) {
   );
 }
 
-// Articles View
 function ArticlesView() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -380,7 +420,7 @@ function ArticlesView() {
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
           >
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <FaPlus className="text-[20px]" />
             Create Article
           </button>
         </div>
@@ -410,13 +450,11 @@ function ArticleCard({ title, xpReward, reads }) {
       <h3 className="mb-2 text-lg font-bold text-slate-900">{title}</h3>
       <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
         <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-[18px]">star</span>
+          <FaStar className="text-[18px]" />
           {xpReward} XP
         </span>
         <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-[18px]">
-            visibility
-          </span>
+          <FaEye className="text-[18px]" />
           {reads} reads
         </span>
       </div>
@@ -432,97 +470,8 @@ function ArticleCard({ title, xpReward, reads }) {
   );
 }
 
-function CreateArticleModal({ onClose }) {
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    xpReward: 50,
-  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle article creation
-    console.log("Creating article:", formData);
-    onClose();
-  };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-2xl p-6 bg-white rounded-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-slate-900">Create Article</h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-900"
-          >
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-2 text-sm font-medium text-slate-700">
-              Title
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="w-full px-4 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-slate-700">
-              Content
-            </label>
-            <textarea
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
-              }
-              className="w-full px-4 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="10"
-              required
-            />
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-slate-700">
-              XP Reward
-            </label>
-            <input
-              type="number"
-              value={formData.xpReward}
-              onChange={(e) =>
-                setFormData({ ...formData, xpReward: parseInt(e.target.value) })
-              }
-              className="w-full px-4 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-            >
-              Create Article
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-bold border rounded-lg text-slate-700 border-slate-300 hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// Quizzes View
 function QuizzesView() {
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
@@ -530,22 +479,21 @@ function QuizzesView() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-slate-900">Quiz Management</h2>
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <FaPlus className="text-[20px]" />
             Create Quiz
           </button>
         </div>
         <div className="p-8 text-center bg-white border shadow-sm rounded-xl border-slate-200">
-          <span className="material-symbols-outlined text-[48px] text-slate-300">
-            quiz
-          </span>
-          <p className="mt-4 text-slate-500">No quizzes yet. Create your first quiz!</p>
+          <FaQuestionCircle className="inline-block text-[48px] text-slate-300" />
+          <p className="mt-4 text-slate-500">
+            No quizzes yet. Create your first quiz!
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-// Videos View
 function VideosView() {
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
@@ -553,22 +501,21 @@ function VideosView() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-slate-900">Video Management</h2>
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <FaPlus className="text-[20px]" />
             Add Video
           </button>
         </div>
         <div className="p-8 text-center bg-white border shadow-sm rounded-xl border-slate-200">
-          <span className="material-symbols-outlined text-[48px] text-slate-300">
-            play_circle
-          </span>
-          <p className="mt-4 text-slate-500">No videos yet. Add your first video!</p>
+          <FaPlayCircle className="inline-block text-[48px] text-slate-300" />
+          <p className="mt-4 text-slate-500">
+            No videos yet. Add your first video!
+          </p>
         </div>
       </div>
     </div>
   );
 }
 
-// Reports View
 function ReportsView() {
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">

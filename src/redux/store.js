@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from './slices/authSlice'; 
 import userReducer from './slices/userSlice'; 
 import adminReducer from "./slices/adminSlice"; 
+import refreshActionMiddleware from "../middleware/refreshDashboardMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -9,6 +10,9 @@ export const store = configureStore({
     user: userReducer,
     admin: adminReducer
   },
+  middleware: (getDefaultMiddleware) => 
+    getDefaultMiddleware().concat(refreshActionMiddleware),
+  
 });
 
 export default store;

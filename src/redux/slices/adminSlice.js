@@ -23,8 +23,10 @@ export const deleteUser = createAsyncThunk(
         try {
             const response = await adminService.deleteUser(userId)
             console.log("API Response:", response.data);
+            
             return response.data
         } catch (error) {
+            console.log(error)
             return rejectWithValue(
                 error.response?.data?.message || "failed to connect to server"
             )
@@ -32,6 +34,21 @@ export const deleteUser = createAsyncThunk(
     }
 )
 
+export const createArticle = createAsyncThunk(
+  "admin/article/new",
+  async ({userId,postData,coverImg}, { rejectWithValue }) => {
+    try {
+      const response = await adminService.createArticle(userId,postData,coverImg);
+        console.log("API Response:", response.data);
+        if (response.status == 200) { console.log("successfull") }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "failed to connect to server"
+      );
+    }
+  }
+);
 const initialState = {
     users: [],
     articles: [],
@@ -76,6 +93,13 @@ const adminSlice = createSlice({
                 state.loading = false
             })
             .addCase(deleteUser.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload
+            }).addCase(createArticle.pending, (state, action) => {
+                state.loading = true
+            }).addCase(createArticle.fulfilled, (state, action) => {
+                state.loading = false
+            }).addCase(createArticle.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload
             })
