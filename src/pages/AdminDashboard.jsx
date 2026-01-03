@@ -24,9 +24,14 @@ import {
   FaCalendarAlt,
   FaDownload,
   FaSignOutAlt,
-  FaBan
+  FaBan,
+  FaThumbsUp,
+  FaThumbsDown,
+  FaComment,
+  FaCalendar
 } from "react-icons/fa";
 import CreateArticleModal from "../components/ArticleModal";
+import EditArticleModal from "../components/EditArticleModal";
 
 export default function AdminDashboard() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -72,7 +77,7 @@ export default function AdminDashboard() {
             {currentView === "users" && (
               <UsersView users={users} loading={loading} user={user} />
             )}
-            {currentView === "articles" && <ArticlesView />}
+            {currentView === "articles" && <ArticlesView articles={articles}/>}
             {currentView === "quizzes" && <QuizzesView />}
             {currentView === "videos" && <VideosView />}
             {currentView === "reports" && <ReportsView />}
@@ -406,9 +411,10 @@ function UsersView({ users, loading, user }) {
   );
 }
 
-function ArticlesView() {
+function ArticlesView({articles}) {
   const [showCreateModal, setShowCreateModal] = useState(false);
-
+  const [showEditModal,setShowEditModal] = useState(false)
+  const [editingArticle,setEditingArticle] = useState(null)
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -425,46 +431,142 @@ function ArticlesView() {
           </button>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <ArticleCard
-            title="Getting Started with React"
-            xpReward={50}
-            reads={245}
-          />
-          <ArticleCard
-            title="Advanced Spring Boot"
-            xpReward={100}
-            reads={156}
-          />
+          {articles.map((article) => (
+            <ArticleCard
+              key={article.id}
+              article={article}
+              onEdit={() => {
+                setShowEditModal(true);
+                setEditingArticle(article)
+              }}
+            />
+          ))}
         </div>
       </div>
       {showCreateModal && (
         <CreateArticleModal onClose={() => setShowCreateModal(false)} />
       )}
+
+      {showEditModal && (
+        <EditArticleModal article={editingArticle} onClose={() => setShowEditModal(false)} />
+      )}
     </div>
   );
 }
 
-function ArticleCard({ title, xpReward, reads }) {
+function ArticleCard({ article, onEdit, onDelete }) {
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
+  const formatCategory = (category) => {
+    if (!category) return '';
+    return category
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, char => char.toUpperCase());
+  };
+
+  // Get category color
+  const getCategoryColor = (category) => {
+    const colors = {
+      WEB_DEV: 'bg-blue-100 text-blue-700',
+      MOBILE_DEV: 'bg-green-100 text-green-700',
+      DATA_SCIENCE: 'bg-purple-100 text-purple-700',
+      GAME_DEV: 'bg-pink-100 text-pink-700',
+      AI: 'bg-indigo-100 text-indigo-700',
+      BLOCKCHAIN: 'bg-yellow-100 text-yellow-700',
+      CYBER_SECURITY: 'bg-red-100 text-red-700',
+      CLOUD_COMPUTING: 'bg-cyan-100 text-cyan-700',
+      DEVOPS: 'bg-orange-100 text-orange-700'
+    };
+    return colors[category] || 'bg-slate-100 text-slate-700';
+  };
+
   return (
-    <div className="p-6 transition-colors bg-white border shadow-sm rounded-xl border-slate-200 hover:border-blue-300">
-      <h3 className="mb-2 text-lg font-bold text-slate-900">{title}</h3>
-      <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
-        <span className="flex items-center gap-1">
-          <FaStar className="text-[18px]" />
-          {xpReward} XP
-        </span>
-        <span className="flex items-center gap-1">
-          <FaEye className="text-[18px]" />
-          {reads} reads
-        </span>
-      </div>
-      <div className="flex gap-2 mt-4">
-        <button className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100">
-          Edit
-        </button>
-        <button className="flex-1 px-3 py-2 text-sm font-medium text-red-600 transition-colors rounded-lg bg-red-50 hover:bg-red-100">
-          Delete
-        </button>
+    <div className="overflow-hidden transition-all bg-white border shadow-sm rounded-xl border-slate-200 hover:shadow-md hover:border-blue-300">
+      {article.coverImageUrl && (
+        <div className="relative w-full h-48 overflow-hidden bg-slate-100">
+          <img
+            src={`http://localhost:8080${article?.coverImageUrl}`}
+            alt={article.title}
+            className="object-cover w-full h-full"
+          />
+          <span
+            className={`absolute top-3 right-3 px-3 py-1 text-xs font-semibold rounded-full ${getCategoryColor(article.category)}`}
+          >
+            {formatCategory(article.category)}
+          </span>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="p-5">
+        {/* Category Badge (if no image) */}
+        {!article.coverImageUrl && (
+          <span
+            className={`inline-block px-3 py-1 mb-3 text-xs font-semibold rounded-full ${getCategoryColor(article.category)}`}
+          >
+            {formatCategory(article.category)}
+          </span>
+        )}
+
+        {/* Title */}
+        <h3 className="mb-3 text-lg font-bold leading-tight text-slate-900 line-clamp-2">
+          {article.title}
+        </h3>
+
+       
+        <div className="flex flex-wrap items-center gap-4 mb-4 text-sm text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <FaCalendar className="text-slate-400" />
+            {formatDate(article.createdAt)}
+          </span>
+          {article.updatedAt && article.updatedAt !== article.createdAt && (
+            <span className="text-xs text-slate-400">
+              (Updated {formatDate(article.updatedAt)})
+            </span>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-4 pb-4 mb-4 text-sm border-b border-slate-200">
+          <span className="flex items-center gap-1.5 text-slate-600">
+            <FaThumbsUp className="text-green-500" />
+            <span className="font-medium">{article.likes}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-slate-600">
+            <FaThumbsDown className="text-red-500" />
+            <span className="font-medium">{article.dislikes}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-slate-600">
+            <FaComment className="text-blue-500" />
+            <span className="font-medium">{article.comments?.length || 0}</span>
+          </span>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={ onEdit}
+            className="flex items-center justify-center flex-1 gap-2 px-4 py-2.5 text-sm font-medium text-blue-600 transition-colors rounded-lg bg-blue-50 hover:bg-blue-100"
+          >
+            <FaEdit />
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete && onDelete(article)}
+            className="flex items-center justify-center flex-1 gap-2 px-4 py-2.5 text-sm font-medium text-red-600 transition-colors rounded-lg bg-red-50 hover:bg-red-100"
+          >
+            <FaTrash />
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );

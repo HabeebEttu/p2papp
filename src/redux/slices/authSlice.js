@@ -10,6 +10,7 @@ export const login = createAsyncThunk(
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("expiryDate", response.data.expiryDate);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -26,6 +27,7 @@ export const register = createAsyncThunk(
       const response = await authService.register(userData);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("expiryDate", response.data.expiryDate);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -34,11 +36,19 @@ export const register = createAsyncThunk(
     }
   }
 );
-
+let isAuthenticated
+if (
+  localStorage.getItem("token") != null ||
+  localStorage.getItem('expiryDate')<Date.now()
+) {
+   isAuthenticated = true;
+} else {
+  isAuthenticated = false;
+}
 const initialState = {
   user:  JSON.parse(localStorage.getItem("user")) ||  null,
   token: localStorage.getItem("token") || null,
-  isAuthenticated: !!localStorage.getItem("token"),
+  isAuthenticated,
   loading: false,
   error: null,
 };
@@ -56,7 +66,6 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    // ✅ ADD THIS: Sync profile updates to auth state and localStorage
     syncProfileUpdate: (state, action) => {
       if (state.user) {
         

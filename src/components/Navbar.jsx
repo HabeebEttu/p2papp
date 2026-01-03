@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaBell,
   FaChevronDown,
@@ -14,6 +14,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
+import { fetchUserProfile } from "../redux/slices/userSlice";
 // import {} from "react-icons/fa"
 
 export default function Navbar() {
@@ -21,6 +22,12 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+    const { profile, loading, error } = useSelector((state) => state.user);
+  useEffect(() => {
+      if (user?.id) {
+        dispatch(fetchUserProfile(user.id));
+      }
+    }, [dispatch, user?.id]);
   const handleLogout = function () {
     dispatch(logout());
     navigate("/login");
@@ -111,13 +118,13 @@ export default function Navbar() {
                       </button>
                     </div>
                   </div>
-                ) }
+                )}
                 <span className="relative flex w-8 h-8 overflow-hidden rounded-full shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
-                  <img
-                    src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20person%20with%20friendly%20smile%20against%20clean%20white%20background%20modern%20portrait%20photography%20style&amp;width=100&amp;height=100&amp;seq=avatar1&amp;orientation=squarish"
+                 {loading ? "":<img
+                    src={ `http://localhost:8080${profile?.avatarUrl}`}
                     alt="User Avatar"
                     className="object-cover w-full h-full"
-                  />
+                  />} 
                 </span>
                 <span className="hidden font-medium text-gray-900 sm:block"></span>
                 <FaChevronDown className="text-sm text-gray-500 transition-transform " />
