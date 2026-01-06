@@ -13,19 +13,22 @@ export default function EditArticleModal({ article, onClose, onSave }) {
     category: article?.category || "",
     body: article?.bodyMarkdown || "",
   });
+  console.log(article);
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(article?.coverImageUrl || "");
+  const [imagePreview, setImagePreview] = useState(
+    article?.coverImageUrl || ""
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [categories] = useState([
-    { value: 'WEB_DEV', label: 'Web Development' },
-    { value: 'MOBILE_DEV', label: 'Mobile Development' },
-    { value: 'DATA_SCIENCE', label: 'Data Science' },
-    { value: 'GAME_DEV', label: 'Game Development' },
-    { value: 'AI', label: 'Artificial Intelligence' },
-    { value: 'BLOCKCHAIN', label: 'Blockchain' },
-    { value: 'CYBER_SECURITY', label: 'Cyber Security' },
-    { value: 'CLOUD_COMPUTING', label: 'Cloud Computing' },
-    { value: 'DEVOPS', label: 'DevOps' }
+    { value: "WEB_DEV", label: "Web Development" },
+    { value: "MOBILE_DEV", label: "Mobile Development" },
+    { value: "DATA_SCIENCE", label: "Data Science" },
+    { value: "GAME_DEV", label: "Game Development" },
+    { value: "AI", label: "Artificial Intelligence" },
+    { value: "BLOCKCHAIN", label: "Blockchain" },
+    { value: "CYBER_SECURITY", label: "Cyber Security" },
+    { value: "CLOUD_COMPUTING", label: "Cloud Computing" },
+    { value: "DEVOPS", label: "DevOps" },
   ]);
 
   const handleImageChange = (e) => {
@@ -40,160 +43,212 @@ export default function EditArticleModal({ article, onClose, onSave }) {
     }
   };
 
- const insertMarkdown = (syntax, placeholder = "") => {
-   const textarea = document.getElementById("markdown-editor");
-   const start = textarea.selectionStart;
-   const end = textarea.selectionEnd;
-   const selectedText = formData.body.substring(start, end);
-   const beforeText = formData.body.substring(0, start);
-   const afterText = formData.body.substring(end);
+  const insertMarkdown = (syntax, placeholder = "") => {
+    const textarea = document.getElementById("markdown-editor");
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = formData.body.substring(start, end);
+    const beforeText = formData.body.substring(0, start);
+    const afterText = formData.body.substring(end);
 
-   let newText = "";
-   let cursorOffset = 0;
+    let newText = "";
+    let cursorOffset = 0;
 
-   switch (syntax) {
-     case "bold":
-       newText = `**${selectedText || placeholder}**`;
-       cursorOffset = selectedText ? newText.length : 2;
-       break;
-     case "italic":
-       newText = `*${selectedText || placeholder}*`;
-       cursorOffset = selectedText ? newText.length : 1;
-       break;
-     case "code":
-       newText = `\`${selectedText || placeholder}\``;
-       cursorOffset = selectedText ? newText.length : 1;
-       break;
-     case "ul":
-       newText = `\n- ${selectedText || placeholder}`;
-       cursorOffset = selectedText ? newText.length : 3;
-       break;
-     case "ol":
-       newText = `\n1. ${selectedText || placeholder}`;
-       cursorOffset = selectedText ? newText.length : 4;
-       break;
-     case "link":
-       newText = `[${selectedText || placeholder}](url)`;
-       cursorOffset = selectedText ? newText.length - 4 : 1;
-       break;
-     case "heading":
-       newText = `\n## ${selectedText || placeholder}`;
-       cursorOffset = selectedText ? newText.length : 4;
-       break;
-     case "table":
-       // Ask user for dimensions
-       const rows = prompt("Number of rows (including header)?", "3");
-       const cols = prompt("Number of columns?", "3");
+    switch (syntax) {
+      case "bold":
+        newText = `**${selectedText || placeholder}**`;
+        cursorOffset = selectedText ? newText.length : 2;
+        break;
+      case "italic":
+        newText = `*${selectedText || placeholder}*`;
+        cursorOffset = selectedText ? newText.length : 1;
+        break;
+      case "code":
+        newText = `\`${selectedText || placeholder}\``;
+        cursorOffset = selectedText ? newText.length : 1;
+        break;
+      case "ul":
+        newText = `\n- ${selectedText || placeholder}`;
+        cursorOffset = selectedText ? newText.length : 3;
+        break;
+      case "ol":
+        newText = `\n1. ${selectedText || placeholder}`;
+        cursorOffset = selectedText ? newText.length : 4;
+        break;
+      case "link":
+        newText = `[${selectedText || placeholder}](url)`;
+        cursorOffset = selectedText ? newText.length - 4 : 1;
+        break;
+      case "heading":
+        newText = `\n## ${selectedText || placeholder}`;
+        cursorOffset = selectedText ? newText.length : 4;
+        break;
+      case "table":
+        const rows = prompt("Number of rows (including header)?", "3");
+        const cols = prompt("Number of columns?", "3");
 
-       if (!rows || !cols) return;
+        if (!rows || !cols) return;
 
-       const numRows = parseInt(rows);
-       const numCols = parseInt(cols);
+        const numRows = parseInt(rows);
+        const numCols = parseInt(cols);
 
-       // Build header
-       let tableMarkdown = "";
-       for (let i = 1; i <= numCols; i++) {
-         tableMarkdown += `Header ${i} | `;
-       }
-       tableMarkdown += "\n|";
+        // Build header - START WITH |
+        let tableMarkdown = "\n| ";
+        for (let i = 1; i <= numCols; i++) {
+          tableMarkdown += `Header ${i}`;
+          if (i < numCols) {
+            tableMarkdown += " | ";
+          }
+        }
+        tableMarkdown += " |\n";
 
-       // Build separator
-       for (let i = 0; i < numCols; i++) {
-         tableMarkdown += "----------|";
-       }
-       tableMarkdown += "\n";
+        // Build separator
+        tableMarkdown += "|";
+        for (let i = 0; i < numCols; i++) {
+          tableMarkdown += "----------|";
+        }
+        tableMarkdown += "\n";
 
-       // Build data rows
-       for (let r = 1; r < numRows; r++) {
-         tableMarkdown += "| ";
-         for (let c = 1; c <= numCols; c++) {
-           tableMarkdown += `Cell ${r},${c} | `;
-         }
-         tableMarkdown += "\n";
-       }
+        // Build data rows
+        for (let r = 1; r < numRows; r++) {
+          tableMarkdown += "| ";
+          for (let c = 1; c <= numCols; c++) {
+            tableMarkdown += `Cell ${r},${c}`;
+            if (c < numCols) {
+              tableMarkdown += " | ";
+            }
+          }
+          tableMarkdown += " |\n";
+        }
 
-       newText = tableMarkdown;
-       cursorOffset = 2; 
-       break;
-     case "image":
-       newText = `![${selectedText || "alt text"}](image-url)`;
-       cursorOffset = selectedText ? newText.length - 11 : 2;
-       break;
-     case "hr":
-       newText = `\n---\n`;
-       cursorOffset = newText.length;
-       break;
-     default:
-       return;
-   }
+        newText = tableMarkdown;
+        cursorOffset = 2;
+        break;
+      case "image":
+        newText = `![${selectedText || "alt text"}](image-url)`;
+        cursorOffset = selectedText ? newText.length - 11 : 2;
+        break;
+      case "hr":
+        newText = `\n---\n`;
+        cursorOffset = newText.length;
+        break;
+      default:
+        return;
+    }
 
-   const updatedBody = beforeText + newText + afterText;
-   setFormData({ ...formData, body: updatedBody });
+    const updatedBody = beforeText + newText + afterText;
+    setFormData({ ...formData, body: updatedBody });
 
-   setTimeout(() => {
-     textarea.focus();
-     textarea.setSelectionRange(start + cursorOffset, start + cursorOffset);
-   }, 0);
- };
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + cursorOffset, start + cursorOffset);
+    }, 0);
+  };
 
   const renderMarkdownPreview = (markdown) => {
-      let html = markdown;
-       html = html.replace(/^---+$/gm, '<hr class="my-4 border-slate-300" />');
-  html = html.replace(/^\*\*\*+$/gm, '<hr class="my-4 border-slate-300" />');
-  html = html.replace(/^___+$/gm, '<hr class="my-4 border-slate-300" />');
+    let html = markdown;
+    html = html.replace(/^---+$/gm, '<hr class="my-4 border-slate-300" />');
+    html = html.replace(/^\*\*\*+$/gm, '<hr class="my-4 border-slate-300" />');
+    html = html.replace(/^___+$/gm, '<hr class="my-4 border-slate-300" />');
 
-  html = html.replace(/^\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|\n?)*)/gm, (match, header, rows) => {
-    const headers = header.split('|').map(h => h.trim()).filter(h => h);
-    const rowsArray = rows.trim().split('\n').map(row => {
-      return row.split('|').map(cell => cell.trim()).filter(cell => cell);
-    });
-    let tableHtml = '<table class="min-w-full border-collapse border border-slate-300 my-4">';
-    tableHtml += '<thead class="bg-slate-100"><tr>';
-    headers.forEach(header => {
-      tableHtml += `<th class="border border-slate-300 px-4 py-2 text-left font-semibold">${header}</th>`;
-    });
-    tableHtml += '</tr></thead>';
-    
-    // Table body
-    tableHtml += '<tbody>';
-    rowsArray.forEach(row => {
-      tableHtml += '<tr class="hover:bg-slate-50">';
-      row.forEach(cell => {
-        tableHtml += `<td class="border border-slate-300 px-4 py-2">${cell}</td>`;
-      });
-      tableHtml += '</tr>';
-    });
-    tableHtml += '</tbody></table>';
-    
-    return tableHtml;
-  });
+    html = html.replace(
+      /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|[\n\r]*)+)/gm,
+      (match, header, rows) => {
+        console.log("=== TABLE DEBUG ===");
+        console.log("Full match:", JSON.stringify(match));
+        console.log("Header captured:", JSON.stringify(header));
+        console.log("Rows captured:", JSON.stringify(rows));
+        console.log("Rows split by newline:", rows.split("\n"));
+        // Parse header
+        const headers = header
+          .split("|")
+          .map((h) => h.trim())
+          .filter((h) => h);
 
-  // Images (must be done before links)
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-    return `<img src="${src}" alt="${alt}" class="max-w-full h-auto rounded-lg my-4" />`;
-  });
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>');
+        // Parse rows - FIXED: properly split by newlines first
+        const rowsArray = rows
+          .trim()
+          .split("\n")
+          .map((row) => {
+            // Remove leading/trailing pipes and split
+            const cleaned = row.trim().replace(/^\||\|$/g, "");
+            return cleaned.split("|").map((cell) => cell.trim());
+          })
+          .filter((row) => row.length > 0 && row[0] !== ""); // Filter empty rows
+
+        console.log("Headers:", headers);
+        console.log("Rows:", rowsArray);
+
+        // Build HTML table
+        let tableHtml = '<div class="overflow-x-auto my-4">';
+        tableHtml +=
+          '<table class="min-w-full border-collapse border border-slate-300">';
+
+        // Table header
+        tableHtml += '<thead class="bg-slate-100"><tr>';
+        headers.forEach((header) => {
+          tableHtml += `<th class="border border-slate-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+        });
+        tableHtml += "</tr></thead>";
+
+        // Table body
+        tableHtml += "<tbody>";
+        rowsArray.forEach((row) => {
+          tableHtml += '<tr class="hover:bg-slate-50">';
+          row.forEach((cell) => {
+            tableHtml += `<td class="border border-slate-300 px-4 py-2">${cell}</td>`;
+          });
+          tableHtml += "</tr>";
+        });
+        tableHtml += "</tbody>";
+
+        tableHtml += "</table></div>";
+
+        return tableHtml;
+      }
+    ); // Images (must be done before links)
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+      return `<img src="${src}" alt="${alt}" class="max-w-full h-auto rounded-lg my-4" />`;
+    });
+    html = html.replace(
+      /^### (.*$)/gim,
+      '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>'
+    );
+    html = html.replace(
+      /^## (.*$)/gim,
+      '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>'
+    );
+    html = html.replace(
+      /^# (.*$)/gim,
+      '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>'
+    );
     html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-    html = html.replace(/`(.*?)`/g, '<code class="bg-slate-100 px-1 rounded">$1</code>');
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>');
+    html = html.replace(
+      /`(.*?)`/g,
+      '<code class="bg-slate-100 px-1 rounded">$1</code>'
+    );
+    html = html.replace(
+      /\[(.*?)\]\((.*?)\)/g,
+      '<a href="$2" class="text-blue-600 hover:underline">$1</a>'
+    );
     html = html.replace(/^\- (.*$)/gim, '<li class="ml-4">$1</li>');
-    html = html.replace(/(<li class="ml-4">.*<\/li>)/gs, '<ul class="list-item list-[circle]">$1</ul>');
+    html = html.replace(
+      /(<li class="ml-4">.*<\/li>)/gs,
+      '<ul class="list-item list-[circle]">$1</ul>'
+    );
     html = html.replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>');
     html = html.replace(/\n/g, "<br />");
-    
-      
+
     return html;
   };
 
   const handleSubmit = () => {
     if (!formData.title || !formData.category || !formData.body) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
-    onSave({ ...formData, imageFile, existingImage: imagePreview });
+onSave({ ...formData, imageFile, coverImage: imagePreview });
   };
 
   return (
@@ -255,7 +310,11 @@ export default function EditArticleModal({ article, onClose, onSave }) {
                   {imagePreview ? (
                     <div className="space-y-2">
                       <img
-                        src={`http://localhost:8080${imagePreview}`}
+                        src={
+                          imagePreview.startsWith("data:")
+                            ? imagePreview
+                            : `http://localhost:8080${imagePreview}`
+                        }
                         alt="Preview"
                         className="mx-auto rounded-lg max-h-32"
                       />

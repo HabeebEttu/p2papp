@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
-import { dashboardHome, deleteUser } from "../redux/slices/adminSlice";
+import {
+  dashboardHome,
+  deleteUser,
+  editArticle,
+} from "../redux/slices/adminSlice";
 import { toast } from "react-toastify";
 import { useConfirm } from "../hooks/Confirm";
 import {
@@ -28,7 +32,8 @@ import {
   FaThumbsUp,
   FaThumbsDown,
   FaComment,
-  FaCalendar
+  FaCalendar,
+  FaCog,
 } from "react-icons/fa";
 import CreateArticleModal from "../components/ArticleModal";
 import EditArticleModal from "../components/EditArticleModal";
@@ -77,7 +82,7 @@ export default function AdminDashboard() {
             {currentView === "users" && (
               <UsersView users={users} loading={loading} user={user} />
             )}
-            {currentView === "articles" && <ArticlesView articles={articles}/>}
+            {currentView === "articles" && <ArticlesView articles={articles} />}
             {currentView === "quizzes" && <QuizzesView />}
             {currentView === "videos" && <VideosView />}
             {currentView === "reports" && <ReportsView />}
@@ -160,7 +165,7 @@ function Header({ currentView, user }) {
   return (
     <header className="z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 shrink-0">
       <div className="items-center hidden gap-2 sm:flex">
-      <a  
+        <a
           className="text-sm font-medium text-slate-500 hover:text-slate-900"
           href="/"
         >
@@ -200,7 +205,7 @@ function DashboardView({ users, articles, quizzes }) {
     totalQuizzes: 0,
     totalVideos: 0,
   });
-  
+
   useEffect(() => {
     setStats({
       totalUsers: users.length,
@@ -317,7 +322,7 @@ function RecentActivityWidget() {
 function UsersView({ users, loading, user }) {
   const dispatch = useDispatch();
   const { confirm, ConfirmDialog } = useConfirm();
-  
+
   const handleDeleteUser = async (userId) => {
     const ok = await confirm("Do you really want to delete this user");
     if (ok) {
@@ -398,6 +403,11 @@ function UsersView({ users, loading, user }) {
                         >
                           <FaTrash className="text-[15px]" />
                         </button>
+                        <button
+                          className="p-2 text-slate-500 hover:text-red-600"
+                        >
+                          <FaCog className="text-[15px]" />
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -411,10 +421,13 @@ function UsersView({ users, loading, user }) {
   );
 }
 
-function ArticlesView({articles}) {
+function ArticlesView({ articles }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal,setShowEditModal] = useState(false)
-  const [editingArticle,setEditingArticle] = useState(null)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingArticle, setEditingArticle] = useState(null);
+  const dispatch = useDispatch();
+  const {} = useSelector((state) => state.admin);
+
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -437,7 +450,7 @@ function ArticlesView({articles}) {
               article={article}
               onEdit={() => {
                 setShowEditModal(true);
-                setEditingArticle(article)
+                setEditingArticle(article);
               }}
             />
           ))}
@@ -448,7 +461,38 @@ function ArticlesView({articles}) {
       )}
 
       {showEditModal && (
-        <EditArticleModal article={editingArticle} onClose={() => setShowEditModal(false)} />
+        <EditArticleModal
+          article={editingArticle}
+          onClose={() => setShowEditModal(false)}
+          onSave={async ({
+            title,
+            category,
+            body,
+            coverImage
+          }) => {
+            try {
+              await dispatch(
+                editArticle({
+                  articleId: editingArticle?.id,
+                  postData: {
+                    title,
+                    category,
+                    body,
+                  },
+                  coverImg:coverImage,
+                })
+              ).unwrap();
+              toast.success("Article updated successfully");
+              await dispatch(dashboardHome());
+
+              setShowEditModal(false);
+              setEditingArticle(null);
+            } catch (error) {
+              console.error("Error updating article:", error);
+              toast.error(error.message || "Failed to update article");
+            }
+          }}
+        />
       )}
     </div>
   );
