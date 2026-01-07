@@ -38,7 +38,7 @@ const adminService = {
     
     return api.post(`/admin/article/edit/${articleId}`, formData);
   },
-  deleteArticle:(articleId)=>  api.delete(`/admin/article/delete/{articleId}`)
+  deleteArticle:(articleId)=>  api.delete(`/admin/article/delete/${articleId}`)
   
 
 }

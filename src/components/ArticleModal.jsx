@@ -11,7 +11,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { createArticle } from "../redux/slices/adminSlice";
+import { createArticle, dashboardHome } from "../redux/slices/adminSlice";
 import { toast } from "react-toastify";
 import { useConfirm } from "../hooks/Confirm";
 import articleService from "../services/articles/articles";
@@ -183,38 +183,48 @@ function CreateArticleModal({ onClose }) {
     return html;
   };
   const {confirm,ConfirmDialog} = useConfirm()
-  const handleSubmit =async  (e) =>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.body == '' || formData.title == '' || formData.category == '') {
-      toast.error('Fill all fields before proceeding')
-    } else {
-      const confirmDialog = await confirm("Do you want to create this article")
-      if (confirmDialog) {
-        try {
-          const userId = user?.id
-          await dispatch(createArticle({
-            userId,
-            postData:formData,
-            coverImg:imageFile
-          })).unwrap();
-          toast.success("Article created successfully")
-          onClose();
-        } catch (e) {
-          console.log(e, error)
-          toast.error(error)
-        }
-         
-      
-        console.log("Creating article:", formData);
-        console.log("Image file:", imageFile);
-      }
+    console.log("1. Submit started");
+
+    if (!formData.body || !formData.title || !formData.category) {
+      toast.error("Fill all fields before proceeding");
+      return;
     }
-    
+    console.log("2. Validation passed");
+
+    const confirmDialog = await confirm("Do you want to create this article");
+    console.log("3. Confirmation:", confirmDialog);
+    if (!confirmDialog) return;
+
+    try {
+      const userId = user?.id;
+      console.log("4. About to dispatch");
+
+      const result = await dispatch(
+        createArticle({
+          userId,
+          postData: formData,
+          coverImg: imageFile,
+        })
+      ).unwrap();
+
+      console.log("5. Article created:", result);
+
+      toast.success("Article created successfully");
+      console.log("6. Toast shown");
+
+      onClose();
+      console.log("7. Modal closed");
+    } catch (e) {
+      console.error("8. Error caught:", e);
+      toast.error(e.message || "Failed to create article");
+    }
   };
 
   return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <ConfirmDialog/>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <ConfirmDialog />
       <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 bg-white rounded-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-slate-900">Create Article</h2>
@@ -229,7 +239,10 @@ function CreateArticleModal({ onClose }) {
         <form className="space-y-6" method="post">
           {/* Title */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-slate-700" htmlFor="title">
+            <label
+              className="block mb-2 text-sm font-medium text-slate-700"
+              htmlFor="title"
+            >
               Title
             </label>
             <input
@@ -237,9 +250,8 @@ function CreateArticleModal({ onClose }) {
               name="title"
               value={formData.title}
               onChange={(e) => {
-                setFormData({ ...formData, title: e.target.value })
-              }
-              }
+                setFormData({ ...formData, title: e.target.value });
+              }}
               className="w-full px-4 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter article title..."
             />
@@ -247,7 +259,10 @@ function CreateArticleModal({ onClose }) {
 
           {/* Category */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-slate-700" htmlFor="category">
+            <label
+              className="block mb-2 text-sm font-medium text-slate-700"
+              htmlFor="category"
+            >
               Category
             </label>
             <select
@@ -269,7 +284,10 @@ function CreateArticleModal({ onClose }) {
 
           {/* Cover Image */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-slate-700" htmlFor="coverImg">
+            <label
+              className="block mb-2 text-sm font-medium text-slate-700"
+              htmlFor="coverImg"
+            >
               Cover Image
             </label>
             <div className="flex gap-4">
@@ -282,7 +300,9 @@ function CreateArticleModal({ onClose }) {
                         alt="Preview"
                         className="mx-auto rounded-lg max-h-32"
                       />
-                      <p className="text-sm text-slate-600">Click to change image</p>
+                      <p className="text-sm text-slate-600">
+                        Click to change image
+                      </p>
                     </div>
                   ) : (
                     <>
@@ -290,7 +310,9 @@ function CreateArticleModal({ onClose }) {
                       <p className="text-sm text-slate-600">
                         Click to upload cover image
                       </p>
-                      <p className="text-xs text-slate-400">PNG, JPG up to 5MB</p>
+                      <p className="text-xs text-slate-400">
+                        PNG, JPG up to 5MB
+                      </p>
                     </>
                   )}
                 </div>
@@ -317,7 +339,7 @@ function CreateArticleModal({ onClose }) {
                 className="flex items-center gap-2 px-3 py-1 text-sm transition-colors border rounded-lg text-slate-600 hover:text-slate-900 border-slate-300 hover:bg-slate-50"
               >
                 <FaEye />
-                {showPreview ? 'Edit' : 'Preview'}
+                {showPreview ? "Edit" : "Preview"}
               </button>
             </div>
 
@@ -326,7 +348,7 @@ function CreateArticleModal({ onClose }) {
               <div className="flex flex-wrap gap-2 p-2 mb-2 border rounded-t-lg bg-slate-50 border-slate-300">
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('heading', 'Heading')}
+                  onClick={() => insertMarkdown("heading", "Heading")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Heading"
                 >
@@ -334,7 +356,7 @@ function CreateArticleModal({ onClose }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('bold', 'bold text')}
+                  onClick={() => insertMarkdown("bold", "bold text")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Bold"
                 >
@@ -342,7 +364,7 @@ function CreateArticleModal({ onClose }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('italic', 'italic text')}
+                  onClick={() => insertMarkdown("italic", "italic text")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Italic"
                 >
@@ -350,7 +372,7 @@ function CreateArticleModal({ onClose }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('code', 'code')}
+                  onClick={() => insertMarkdown("code", "code")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Code"
                 >
@@ -359,7 +381,7 @@ function CreateArticleModal({ onClose }) {
                 <div className="w-px h-6 my-auto bg-slate-300"></div>
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('ul', 'list item')}
+                  onClick={() => insertMarkdown("ul", "list item")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Bullet List"
                 >
@@ -367,7 +389,7 @@ function CreateArticleModal({ onClose }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('ol', 'list item')}
+                  onClick={() => insertMarkdown("ol", "list item")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Numbered List"
                 >
@@ -375,7 +397,7 @@ function CreateArticleModal({ onClose }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => insertMarkdown('link', 'link text')}
+                  onClick={() => insertMarkdown("link", "link text")}
                   className="p-2 transition-colors rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200"
                   title="Link"
                 >
@@ -389,7 +411,9 @@ function CreateArticleModal({ onClose }) {
               <div
                 className="w-full min-h-[300px] px-4 py-3 border rounded-b-lg border-slate-300 bg-white prose max-w-none"
                 dangerouslySetInnerHTML={{
-                  __html: renderMarkdownPreview(formData.body) || '<p class="text-slate-400">Nothing to preview yet...</p>'
+                  __html:
+                    renderMarkdownPreview(formData.body) ||
+                    '<p class="text-slate-400">Nothing to preview yet...</p>',
                 }}
               />
             ) : (
@@ -421,7 +445,8 @@ function CreateArticleModal({ onClose }) {
             )}
 
             <p className="mt-2 text-xs text-slate-500">
-              Supports Markdown formatting: **bold**, *italic*, `code`, # headings, - lists, [links](url)
+              Supports Markdown formatting: **bold**, *italic*, `code`, #
+              headings, - lists, [links](url)
             </p>
           </div>
 
@@ -429,9 +454,9 @@ function CreateArticleModal({ onClose }) {
           <div className="flex gap-3 pt-4 border-t border-slate-200">
             <button
               onClick={handleSubmit}
-              className="flex-1 px-6 py-3 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+              className={`flex-1 px-6 py-3 text-sm font-bold text-white transition-colors ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
             >
-              Create Article
+             {loading?"Creating Article...":" Create Article"}
             </button>
             <button
               onClick={onClose}

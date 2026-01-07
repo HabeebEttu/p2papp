@@ -7,7 +7,7 @@ import {
   FaMinus
 } from 'react-icons/fa';
 
-export default function EditArticleModal({ article, onClose, onSave }) {
+export default function EditArticleModal({ article, onClose, onSave ,loading}) {
   const [formData, setFormData] = useState({
     title: article?.title || "",
     category: article?.category || "",
@@ -471,9 +471,10 @@ onSave({ ...formData, imageFile, coverImage: imagePreview });
           <div className="flex gap-3 pt-4 border-t border-slate-200">
             <button
               onClick={handleSubmit}
-              className="flex-1 px-6 py-3 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+              disabled={loading}
+              className={`flex-1 px-6 py-3 text-sm font-bold text-white transition-colors  rounded-lg  ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
             >
-              Save Changes
+              {!loading ? "Save Changes" : "Saving Changes..."}
             </button>
             <button
               onClick={onClose}

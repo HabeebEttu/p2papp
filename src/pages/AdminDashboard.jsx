@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import {
   dashboardHome,
+  deleteArticle,
   deleteUser,
   editArticle,
 } from "../redux/slices/adminSlice";
@@ -426,7 +427,9 @@ function ArticlesView({ articles }) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
   const dispatch = useDispatch();
-  const {} = useSelector((state) => state.admin);
+  
+  const { confirm, ConfirmDialog } = useConfirm();
+  const {loading,error} = useSelector((state) => state.admin);
 
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
@@ -444,6 +447,7 @@ function ArticlesView({ articles }) {
           </button>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <ConfirmDialog/>
           {articles.map((article) => (
             <ArticleCard
               key={article.id}
@@ -451,6 +455,22 @@ function ArticlesView({ articles }) {
               onEdit={() => {
                 setShowEditModal(true);
                 setEditingArticle(article);
+              }}
+              onDelete={
+                async()=>{
+                  const isDelete = await confirm("Do you really want to delete this article")
+                  if(isDelete){
+                  try {
+                    await dispatch(deleteArticle({articleId:article?.id})).unwrap({})
+                    toast.success("Article deleted successfully")
+                  } catch (error) {
+                    console.log(error)
+                    toast.error("Article failed to delete")
+                  }
+                }else{
+                  return;
+                }
+              
               }}
             />
           ))}
@@ -492,6 +512,7 @@ function ArticlesView({ articles }) {
               toast.error(error.message || "Failed to update article");
             }
           }}
+          loading= {loading}
         />
       )}
     </div>
@@ -561,7 +582,7 @@ function ArticleCard({ article, onEdit, onDelete }) {
         )}
 
         {/* Title */}
-        <h3 className="mb-3 text-lg font-bold leading-tight text-slate-900 line-clamp-2">
+        <h3 className="mb-3 text-lg font-bold leading-tight text-slate-900 line-clamp-2 hover:text-blue-600 hover:cursor-pointer">
           {article.title}
         </h3>
 
@@ -604,7 +625,7 @@ function ArticleCard({ article, onEdit, onDelete }) {
             Edit
           </button>
           <button
-            onClick={() => onDelete && onDelete(article)}
+            onClick={onDelete}
             className="flex items-center justify-center flex-1 gap-2 px-4 py-2.5 text-sm font-medium text-red-600 transition-colors rounded-lg bg-red-50 hover:bg-red-100"
           >
             <FaTrash />

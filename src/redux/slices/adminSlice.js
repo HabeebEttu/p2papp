@@ -44,9 +44,7 @@ export const createArticle = createAsyncThunk(
         coverImg
       );
 
-      // Refresh dashboard after creation
-      dispatch(dashboardHome());
-      console.log('created article',response.data)
+   
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -56,15 +54,23 @@ export const createArticle = createAsyncThunk(
   }
 );
 export const deleteArticle = createAsyncThunk(
-  "admin/a"
+  "admin/article/delete",
+  async({articleId},{rejectWithValue,dispatch})=>{
+    try {
+      const response = await adminService.deleteArticle(articleId);
+      dispatch(dashboardHome())
+      return response.data
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "failed to connect to server"
+      );
+    }
+  }
 )
 export const editArticle = createAsyncThunk(
   "admin/article/edit",
   async ({ articleId, postData, coverImg }, { rejectWithValue, dispatch }) => {
     try {
-      console.log(coverImg)
-      console.log(articleId)
-      console.log(postData)
       const response = await adminService.editArticle(
         articleId,
         postData,
@@ -145,6 +151,17 @@ const adminSlice = createSlice({
         state.loading = false;
       })
       .addCase(editArticle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteArticle.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteArticle.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(deleteArticle.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
