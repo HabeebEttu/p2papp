@@ -1,11 +1,14 @@
 import React from 'react'
 import { useSelector } from "react-redux";
 import { FaRocket } from "react-icons/fa";
+import { redirect, useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
-  const { user } = useSelector((state) => state.auth);
-
-  // Fallback values if stats don't exist
+  const { user ,isAuthenticated} = useSelector((state) => state.auth);
+  const navigate = useNavigate()
+  if (!isAuthenticated) {
+    navigate('/login')
+  }
   const stats = {
     totalXP: user?.profile?.xp || 0,
     articlesRead: user?.profile?.articlesRead || 0,

@@ -145,103 +145,7 @@ export default function EditArticleModal({ article, onClose, onSave ,loading}) {
     }, 0);
   };
 
-  const renderMarkdownPreview = (markdown) => {
-    let html = markdown;
-    html = html.replace(/^---+$/gm, '<hr class="my-4 border-slate-300" />');
-    html = html.replace(/^\*\*\*+$/gm, '<hr class="my-4 border-slate-300" />');
-    html = html.replace(/^___+$/gm, '<hr class="my-4 border-slate-300" />');
-
-    html = html.replace(
-      /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|[\n\r]*)+)/gm,
-      (match, header, rows) => {
-        console.log("=== TABLE DEBUG ===");
-        console.log("Full match:", JSON.stringify(match));
-        console.log("Header captured:", JSON.stringify(header));
-        console.log("Rows captured:", JSON.stringify(rows));
-        console.log("Rows split by newline:", rows.split("\n"));
-        // Parse header
-        const headers = header
-          .split("|")
-          .map((h) => h.trim())
-          .filter((h) => h);
-
-        // Parse rows - FIXED: properly split by newlines first
-        const rowsArray = rows
-          .trim()
-          .split("\n")
-          .map((row) => {
-            // Remove leading/trailing pipes and split
-            const cleaned = row.trim().replace(/^\||\|$/g, "");
-            return cleaned.split("|").map((cell) => cell.trim());
-          })
-          .filter((row) => row.length > 0 && row[0] !== ""); // Filter empty rows
-
-        console.log("Headers:", headers);
-        console.log("Rows:", rowsArray);
-
-        // Build HTML table
-        let tableHtml = '<div class="overflow-x-auto my-4">';
-        tableHtml +=
-          '<table class="min-w-full border-collapse border border-slate-300">';
-
-        // Table header
-        tableHtml += '<thead class="bg-slate-100"><tr>';
-        headers.forEach((header) => {
-          tableHtml += `<th class="border border-slate-300 px-4 py-2 text-left font-semibold">${header}</th>`;
-        });
-        tableHtml += "</tr></thead>";
-
-        // Table body
-        tableHtml += "<tbody>";
-        rowsArray.forEach((row) => {
-          tableHtml += '<tr class="hover:bg-slate-50">';
-          row.forEach((cell) => {
-            tableHtml += `<td class="border border-slate-300 px-4 py-2">${cell}</td>`;
-          });
-          tableHtml += "</tr>";
-        });
-        tableHtml += "</tbody>";
-
-        tableHtml += "</table></div>";
-
-        return tableHtml;
-      }
-    ); // Images (must be done before links)
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-      return `<img src="${src}" alt="${alt}" class="max-w-full h-auto rounded-lg my-4" />`;
-    });
-    html = html.replace(
-      /^### (.*$)/gim,
-      '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>'
-    );
-    html = html.replace(
-      /^## (.*$)/gim,
-      '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>'
-    );
-    html = html.replace(
-      /^# (.*$)/gim,
-      '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>'
-    );
-    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-    html = html.replace(
-      /`(.*?)`/g,
-      '<code class="bg-slate-100 px-1 rounded">$1</code>'
-    );
-    html = html.replace(
-      /\[(.*?)\]\((.*?)\)/g,
-      '<a href="$2" class="text-blue-600 hover:underline">$1</a>'
-    );
-    html = html.replace(/^\- (.*$)/gim, '<li class="ml-4">$1</li>');
-    html = html.replace(
-      /(<li class="ml-4">.*<\/li>)/gs,
-      '<ul class="list-item list-[circle]">$1</ul>'
-    );
-    html = html.replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>');
-    html = html.replace(/\n/g, "<br />");
-
-    return html;
-  };
+  
 
   const handleSubmit = () => {
     if (!formData.title || !formData.category || !formData.body) {
@@ -450,7 +354,7 @@ onSave({ ...formData, imageFile, coverImage: imagePreview });
                 className="w-full min-h-[300px] px-4 py-3 border rounded-b-lg border-slate-300 bg-white prose max-w-none"
                 dangerouslySetInnerHTML={{
                   __html:
-                    renderMarkdownPreview(formData.body) ||
+                    renderMarkdown(formData.body) ||
                     '<p class="text-slate-400">Nothing to preview yet...</p>',
                 }}
               />
@@ -489,8 +393,104 @@ onSave({ ...formData, imageFile, coverImage: imagePreview });
   );
 }
 
+export const renderMarkdown = (markdown) => {
+    let html = markdown;
+    html = html.replace(/^---+$/gm, '<hr class="my-4 border-slate-300" />');
+    html = html.replace(/^\*\*\*+$/gm, '<hr class="my-4 border-slate-300" />');
+    html = html.replace(/^___+$/gm, '<hr class="my-4 border-slate-300" />');
 
-function ArticleViewer({ article, onClose, onLike, onDislike, onComment }) {
+    html = html.replace(
+      /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|[\n\r]*)+)/gm,
+      (match, header, rows) => {
+        console.log("=== TABLE DEBUG ===");
+        console.log("Full match:", JSON.stringify(match));
+        console.log("Header captured:", JSON.stringify(header));
+        console.log("Rows captured:", JSON.stringify(rows));
+        console.log("Rows split by newline:", rows.split("\n"));
+        // Parse header
+        const headers = header
+          .split("|")
+          .map((h) => h.trim())
+          .filter((h) => h);
+
+        // Parse rows - FIXED: properly split by newlines first
+        const rowsArray = rows
+          .trim()
+          .split("\n")
+          .map((row) => {
+            // Remove leading/trailing pipes and split
+            const cleaned = row.trim().replace(/^\||\|$/g, "");
+            return cleaned.split("|").map((cell) => cell.trim());
+          })
+          .filter((row) => row.length > 0 && row[0] !== ""); // Filter empty rows
+
+        console.log("Headers:", headers);
+        console.log("Rows:", rowsArray);
+
+        // Build HTML table
+        let tableHtml = '<div class="overflow-x-auto my-4">';
+        tableHtml +=
+          '<table class="min-w-full border-collapse border border-slate-300">';
+
+        // Table header
+        tableHtml += '<thead class="bg-slate-100"><tr>';
+        headers.forEach((header) => {
+          tableHtml += `<th class="border border-slate-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+        });
+        tableHtml += "</tr></thead>";
+
+        // Table body
+        tableHtml += "<tbody>";
+        rowsArray.forEach((row) => {
+          tableHtml += '<tr class="hover:bg-slate-50">';
+          row.forEach((cell) => {
+            tableHtml += `<td class="border border-slate-300 px-4 py-2">${cell}</td>`;
+          });
+          tableHtml += "</tr>";
+        });
+        tableHtml += "</tbody>";
+
+        tableHtml += "</table></div>";
+
+        return tableHtml;
+      }
+    ); // Images (must be done before links)
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+      return `<img src="${src}" alt="${alt}" class="max-w-full h-auto rounded-lg my-4" />`;
+    });
+    html = html.replace(
+      /^### (.*$)/gim,
+      '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>'
+    );
+    html = html.replace(
+      /^## (.*$)/gim,
+      '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>'
+    );
+    html = html.replace(
+      /^# (.*$)/gim,
+      '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>'
+    );
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    html = html.replace(
+      /`(.*?)`/g,
+      '<code class="bg-slate-100 px-1 rounded">$1</code>'
+    );
+    html = html.replace(
+      /\[(.*?)\]\((.*?)\)/g,
+      '<a href="$2" class="text-blue-600 hover:underline">$1</a>'
+    );
+    html = html.replace(/^\- (.*$)/gim, '<li class="ml-4">$1</li>');
+    html = html.replace(
+      /(<li class="ml-4">.*<\/li>)/gs,
+      '<ul class="list-item list-[circle]">$1</ul>'
+    );
+    html = html.replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>');
+    html = html.replace(/\n/g, "<br />");
+
+    return html;
+  };
+export function ArticleViewer({ article, onClose, onLike, onDislike, onComment }) {
   const [commentText, setCommentText] = useState('');
   const [showCommentForm, setShowCommentForm] = useState(false);
 
@@ -589,7 +589,7 @@ function ArticleViewer({ article, onClose, onLike, onDislike, onComment }) {
         <div className="p-8 mb-8 bg-white shadow-sm rounded-xl">
           <div 
             className="prose prose-slate max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-blue-600 prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded"
-            dangerouslySetInnerHTML={{ __html: article.bodyHtml }}
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(article.bodyMarkdown) }}
           />
         </div>
 

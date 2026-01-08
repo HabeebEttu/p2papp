@@ -10,28 +10,31 @@ import {
   FaShieldAlt,
   FaSignOutAlt,
   FaUser,
+  FaCrown,
 } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import { fetchUserProfile } from "../redux/slices/userSlice";
-// import {} from "react-icons/fa"
 
 export default function Navbar() {
   const [profileIsOpen, setProfileIsOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-    const { profile, loading, error } = useSelector((state) => state.user);
+  const { profile, loading, error } = useSelector((state) => state.user);
+
   useEffect(() => {
-      if (user?.id) {
-        dispatch(fetchUserProfile(user.id));
-      }
-    }, [dispatch, user?.id]);
+    if (user?.id) {
+      dispatch(fetchUserProfile(user.id));
+    }
+  }, [dispatch, user?.id]);
+
   const handleLogout = function () {
     dispatch(logout());
     navigate("/login");
   };
+
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 mx-auto max-w-7xl">
@@ -42,24 +45,11 @@ export default function Navbar() {
                 <FaGraduationCap className="text-xl text-white" />
               </div>
               <h1 className="text-xl font-bold text-gray-900">
-                <Link to={"/dashboard"}>P2PLearn</Link>{" "}
+                <Link to={"/dashboard"}>P2PLearn</Link>
               </h1>
             </div>
-            {/* <div className="hidden space-x-1 md:flex">
-              <button className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 shadow hover:bg-primary/90 h-9 px-4 py-2 bg-blue-50 text-blue-700 border-blue-200 !rounded-button whitespace-nowrap cursor-pointer">
-                <i className="mr-2 fas fa-home"></i>Dashboard
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary shadow h-9 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 !rounded-button whitespace-nowrap cursor-pointer">
-                <i className="mr-2 fas fa-newspaper"></i>Articles
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary shadow h-9 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 !rounded-button whitespace-nowrap cursor-pointer">
-                <i className="mr-2 fas fa-brain"></i>Quizzes
-              </button>
-              <button className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary shadow h-9 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 !rounded-button whitespace-nowrap cursor-pointer">
-                <i className="mr-2 fas fa-trophy"></i>Leaderboard
-              </button>
-            </div> */}
           </div>
+
           <div className="flex items-center space-x-4">
             <div className="relative">
               <input
@@ -68,19 +58,21 @@ export default function Navbar() {
               />
               <FaSearch className="absolute text-gray-500 transform -translate-y-1/2 right-3 top-1/2" />
             </div>
-            <button className="inline-flex items-center justify-center gap-2 rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none bg-primary shadow px-2 py-1 w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 !rounded-button whitespace-nowrap cursor-pointer">
+
+            <button className="inline-flex items-center justify-center w-10 h-10 gap-2 px-2 py-1 font-medium text-gray-600 transition-colors rounded-md shadow cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary hover:text-gray-900 hover:bg-gray-100 rounded-button whitespace-nowrap">
               <FaMoon size={20} />
             </button>
-            <button className="inline-flex items-center justify-center gap-2 rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none  bg-primary shadow px-2 py-1 w-10 h-10 relative text-gray-600 hover:text-gray-900 hover:bg-gray-100 !rounded-button whitespace-nowrap cursor-pointer">
+
+            <button className="relative inline-flex items-center justify-center w-10 h-10 gap-2 px-2 py-1 font-medium text-gray-600 transition-colors rounded-md shadow cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary hover:text-gray-900 hover:bg-gray-100 rounded-button whitespace-nowrap">
               <FaBell size={20} />
               <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -top-1 -right-1">
                 3
               </span>
             </button>
+
             <div
               className="relative"
               role="button"
-              autoFocus={true}
               onClick={() => setProfileIsOpen(!profileIsOpen)}
             >
               <div
@@ -96,6 +88,16 @@ export default function Navbar() {
                           <span className="font-medium">View Profile</span>
                         </div>
                       </Link>
+
+                      {user?.admin && (
+                        <Link to={"/admin"}>
+                          <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
+                            <FaCrown className="w-5 mr-3 text-center text-yellow-600" />
+                            <span className="font-medium">Admin Dashboard</span>
+                          </div>
+                        </Link>
+                      )}
+
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaCog className="w-5 mr-3 text-center text-gray-600" />
                         <span className="font-medium">Account Settings</span>
@@ -106,7 +108,7 @@ export default function Navbar() {
                       </div>
                       <div className="flex items-center px-4 py-3 text-gray-900 transition-colors cursor-pointer hover:bg-gray-50">
                         <FaQuestionCircle className="w-5 mr-3 text-center text-green-600" />
-                        <span className="font-medium">Help &amp; Support</span>
+                        <span className="font-medium">Help and Support</span>
                       </div>
                       <hr className="my-2 border-gray-200" />
                       <button
@@ -119,15 +121,45 @@ export default function Navbar() {
                     </div>
                   </div>
                 )}
-                <span className="relative flex w-8 h-8 overflow-hidden rounded-full shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
-                 {loading ? "":<img
-                    src={ `http://localhost:8080${profile?.avatarUrl}`}
-                    alt="User Avatar"
-                    className="object-cover w-full h-full"
-                  />} 
+
+                <div className="relative">
+                  <span className="relative flex w-8 h-8 overflow-hidden rounded-full shrink-0 bg-gradient-to-r from-blue-500 to-purple-500">
+                    {loading ? (
+                      ""
+                    ) : (
+                      <img
+                        src={
+                          profile?.avatarUrl?.startsWith("http")
+                            ? profile.avatarUrl
+                            : `http://localhost:8080${profile?.avatarUrl}`
+                        }
+                        alt="User Avatar"
+                        className="object-cover w-full h-full"
+                      />
+                    )}
+                  </span>
+
+                  {user?.admin && (
+                    <span className="absolute flex items-center justify-center w-4 h-4 bg-yellow-400 border-2 border-white rounded-full -bottom-1 -right-1">
+                      <FaCrown className="text-xs text-yellow-900" />
+                    </span>
+                  )}
+                </div>
+
+                <span className="hidden font-medium text-gray-900 sm:block">
+                  {user?.admin && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">
+                      <FaCrown className="text-xs" />
+                      Admin
+                    </span>
+                  )}
                 </span>
-                <span className="hidden font-medium text-gray-900 sm:block"></span>
-                <FaChevronDown className="text-sm text-gray-500 transition-transform " />
+
+                <FaChevronDown
+                  className={`text-sm text-gray-500 transition-transform ${
+                    profileIsOpen ? "rotate-180" : ""
+                  }`}
+                />
               </div>
             </div>
           </div>

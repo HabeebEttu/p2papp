@@ -7,6 +7,7 @@ import {
   deleteArticle,
   deleteUser,
   editArticle,
+  makeAdmin,
 } from "../redux/slices/adminSlice";
 import { toast } from "react-toastify";
 import { useConfirm } from "../hooks/Confirm";
@@ -35,9 +36,14 @@ import {
   FaComment,
   FaCalendar,
   FaCog,
+  FaCrown,
+  FaUserShield,
+  FaShieldAlt,
+  FaSearch,
+  FaFilter,
 } from "react-icons/fa";
 import CreateArticleModal from "../components/ArticleModal";
-import EditArticleModal from "../components/EditArticleModal";
+import EditArticleModal, { ArticleViewer } from "../components/EditArticleModal";
 
 export default function AdminDashboard() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -47,14 +53,12 @@ export default function AdminDashboard() {
   const { users, articles, quizzes, loading, error } = useSelector(
     (state) => state.admin
   );
-
+  
   useEffect(() => {
     if (!user?.admin) {
       navigate("/dashboard");
     }
     dispatch(dashboardHome());
-    console.log(users);
-    console.log(articles);
   }, [user, navigate]);
 
   const handleLogout = () => {
@@ -208,6 +212,7 @@ function DashboardView({ users, articles, quizzes }) {
   });
 
   useEffect(() => {
+    console.log(users)
     setStats({
       totalUsers: users.length,
       totalArticles: articles.length,
@@ -320,95 +325,313 @@ function RecentActivityWidget() {
   );
 }
 
+
 function UsersView({ users, loading, user }) {
   const dispatch = useDispatch();
   const { confirm, ConfirmDialog } = useConfirm();
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [roleFilter, setRoleFilter] = React.useState('all'); // 'all', 'admin', 'user'
 
-  const handleDeleteUser = async (userId) => {
-    const ok = await confirm("Do you really want to delete this user");
-    if (ok) {
-      try {
-        if (userId != user?.id) {
-          await dispatch(deleteUser({ userId })).unwrap();
-          toast.success("User deleted successfully");
+  const handleToggleAdmin = async (userId, isAdmin, username) => {
+    if (userId === user?.id) {
+      toast.error("You cannot change your own admin status");
+      return;
+    }
+
+    if (isAdmin) {
+      // Remove admin privileges
+      const ok = await confirm(`Remove admin privileges from ${username}?`);
+      if (ok) {
+        try {
+          await dispatch(removeAdmin({ userId })).unwrap();
+          toast.success(`${username} is no longer an admin`);
           await dispatch(dashboardHome());
-        } else {
-          toast.error("Cannot delete current user");
+        } catch (error) {
+          toast.error("Failed to remove admin privileges");
+          console.error(error);
         }
-      } catch (error) {
-        toast.error("Failed to delete user");
-        console.error("Error failed to delete user", error);
+      }
+    } else {
+      // Grant admin privileges
+      const ok = await confirm(`Grant admin privileges to ${username}?`);
+      if (ok) {
+        try {
+          await dispatch(makeAdmin({ userId })).unwrap();
+          toast.success(`${username} is now an admin`);
+          await dispatch(dashboardHome());
+        } catch (error) {
+          toast.error("Failed to grant admin privileges");
+          console.error(error);
+        }
       }
     }
   };
 
+  const handleDeleteUser = async (userId, username) => {
+    if (userId === user?.id) {
+      toast.error("Cannot delete current user");
+      return;
+    }
+
+    const ok = await confirm(`Permanently delete ${username}? This action cannot be undone.`);
+    if (ok) {
+      try {
+        await dispatch(deleteUser({ userId })).unwrap();
+        toast.success("User deleted successfully");
+        await dispatch(dashboardHome());
+      } catch (error) {
+        toast.error("Failed to delete user");
+        console.error("Error deleting user:", error);
+      }
+    }
+  };
+
+  // Filter users based on search and role
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = 
+      u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = 
+      roleFilter === 'all' ||
+      (roleFilter === 'admin' && u.admin) ||
+      (roleFilter === 'user' && !u.admin);
+    
+    return matchesSearch && matchesRole;
+  });
+
+  const adminCount = users.filter(u => u.admin).length;
+  const userCount = users.length - adminCount;
+
   return (
     <div className="flex-1 p-4 overflow-y-auto md:p-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-slate-900">User Management</h2>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-            <FaUserPlus className="text-[20px]" />
-            Add User
-          </button>
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900">User Management</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Manage users, roles, and permissions
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+                <FaDownload className="text-[16px]" />
+                Export
+              </button>
+              <button className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                <FaUserPlus className="text-[16px]" />
+                Add User
+              </button>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-3">
+            <div className="p-5 bg-white border rounded-xl border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Total Users</p>
+                  <p className="mt-1 text-2xl font-bold text-slate-900">{users.length}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <FaUserShield className="text-2xl text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5 bg-white border rounded-xl border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Administrators</p>
+                  <p className="mt-1 text-2xl font-bold text-slate-900">{adminCount}</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <FaShieldAlt className="text-2xl text-purple-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5 bg-white border rounded-xl border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Regular Users</p>
+                  <p className="mt-1 text-2xl font-bold text-slate-900">{userCount}</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <FaUserPlus className="text-2xl text-green-600" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Filters */}
+        <div className="p-4 mb-6 bg-white border shadow-sm rounded-xl border-slate-200">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            {/* Search */}
+            <div className="relative flex-1">
+              <FaSearch className="absolute text-slate-400 transform -translate-y-1/2 left-3 top-1/2" />
+              <input
+                type="text"
+                placeholder="Search by username or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full py-2 pl-10 pr-4 text-sm border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Role Filter */}
+            <div className="flex items-center gap-2">
+              <FaFilter className="text-slate-400" />
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-4 py-2 text-sm border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Users</option>
+                <option value="admin">Admins Only</option>
+                <option value="user">Users Only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
         <div className="overflow-hidden bg-white border shadow-sm rounded-xl border-slate-200">
           <div className="overflow-x-auto">
             <ConfirmDialog />
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="text-xs tracking-wider uppercase bg-slate-50 text-slate-500">
-                  <th className="p-4 font-medium">Username</th>
-                  <th className="p-4 font-medium">Email</th>
-                  <th className="p-4 font-medium">XP</th>
-                  <th className="p-4 font-medium">Rank</th>
-                  <th className="p-4 font-medium text-right">Actions</th>
+                <tr className="text-xs tracking-wider uppercase border-b bg-slate-50 text-slate-600 border-slate-200">
+                  <th className="p-4 font-semibold">User</th>
+                  <th className="p-4 font-semibold">Email</th>
+                  <th className="p-4 font-semibold">XP</th>
+                  <th className="p-4 font-semibold">Rank</th>
+                  <th className="p-4 font-semibold">Role</th>
+                  <th className="p-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="text-sm">
+              <tbody className="text-sm divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="p-8 text-center text-slate-500">
-                      Loading users...
+                    <td colSpan="6" className="p-12 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-8 h-8 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                        <p className="text-slate-500">Loading users...</p>
+                      </div>
                     </td>
                   </tr>
-                ) : users.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="p-8 text-center text-slate-500">
-                      No users found
+                    <td colSpan="6" className="p-12 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <FaUserShield className="text-5xl text-slate-300" />
+                        <p className="text-slate-500">
+                          {searchTerm || roleFilter !== 'all' 
+                            ? 'No users found matching your filters' 
+                            : 'No users found'}
+                        </p>
+                      </div>
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
+                  filteredUsers.map((u) => (
                     <tr
-                      key={user.id}
-                      className="transition-colors border-b border-slate-100 hover:bg-slate-50"
+                      key={u.id}
+                      className="transition-colors hover:bg-slate-50"
                     >
-                      <td className="px-4 py-2 font-medium text-slate-900">
-                        {user.username}
+                      {/* Username with Avatar */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center w-10 h-10 font-semibold text-white rounded-full bg-gradient-to-br from-blue-500 to-purple-500">
+                            {u.username.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900">{u.username}</p>
+                            {u.id === user?.id && (
+                              <span className="inline-block px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-full mt-0.5">
+                                You
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-4 py-2 text-slate-500">{user.email}</td>
-                      <td className="px-4 py-2 text-slate-500">
-                        {user?.profile?.xp || 0}
+
+                      {/* Email */}
+                      <td className="px-4 py-4 text-slate-600">{u.email}</td>
+
+                      {/* XP */}
+                      <td className="px-4 py-4">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-100 rounded-full">
+                          <span>⭐</span>
+                          {u?.profile?.xp || 0}
+                        </span>
                       </td>
-                      <td className="px-4 py-2 capitalize text-slate-500">
-                        {user?.profile?.rank || "N/A"}
+
+                      {/* Rank */}
+                      <td className="px-4 py-4">
+                        <span className="inline-block px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 rounded-full capitalize">
+                          {u?.profile?.rank || "N/A"}
+                        </span>
                       </td>
-                      <td className="px-4 py-2 text-right">
-                        <button className="p-2 text-slate-500 hover:text-blue-600">
-                          <FaBan className="text-[15px]" />
-                        </button>
-                        <button
-                          className="p-2 text-slate-500 hover:text-red-600"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <FaTrash className="text-[15px]" />
-                        </button>
-                        <button
-                          className="p-2 text-slate-500 hover:text-red-600"
-                        >
-                          <FaCog className="text-[15px]" />
-                        </button>
+                      <td className="px-4 py-4">
+                        {u.admin ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full">
+                            <FaShieldAlt />
+                            Admin
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-slate-600 bg-slate-100 rounded-full">
+                            User
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleToggleAdmin(u.id, u.admin, u.username)}
+                            disabled={u.id === user?.id}
+                            className={`p-2 rounded-lg transition-colors ${
+                              u.id === user?.id
+                                ? 'text-slate-300 cursor-not-allowed'
+                                : u.admin
+                                ? 'text-purple-600 hover:bg-purple-50'
+                                : 'text-slate-500 hover:bg-slate-100'
+                            }`}
+                            title={
+                              u.id === user?.id
+                                ? "Cannot change your own role"
+                                : u.admin
+                                ? "Remove admin privileges"
+                                : "Grant admin privileges"
+                            }
+                          >
+                            <FaCrown className="text-[16px]" />
+                          </button>
+
+                          <button
+                            className="p-2 transition-colors rounded-lg text-slate-500 hover:text-orange-600 hover:bg-orange-50"
+                            title="Ban user"
+                          >
+                            <FaBan className="text-[16px]" />
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteUser(u.id, u.username)}
+                            disabled={u.id === user?.id}
+                            className={`p-2 rounded-lg transition-colors ${
+                              u.id === user?.id
+                                ? 'text-slate-300 cursor-not-allowed'
+                                : 'text-slate-500 hover:text-red-600 hover:bg-red-50'
+                            }`}
+                            title={u.id === user?.id ? "Cannot delete yourself" : "Delete user"}
+                          >
+                            <FaTrash className="text-[16px]" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -417,15 +640,24 @@ function UsersView({ users, loading, user }) {
             </table>
           </div>
         </div>
+
+        {/* Results count */}
+        {!loading && filteredUsers.length > 0 && (
+          <div className="mt-4 text-sm text-center text-slate-500">
+            Showing {filteredUsers.length} of {users.length} users
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
+
 function ArticlesView({ articles }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
+  const [viewingArticle, setViewingArticle] = useState(null)
   const dispatch = useDispatch();
   
   const { confirm, ConfirmDialog } = useConfirm();
@@ -456,6 +688,9 @@ function ArticlesView({ articles }) {
                 setShowEditModal(true);
                 setEditingArticle(article);
               }}
+              onView={() => {
+                setViewingArticle(article)
+              }}
               onDelete={
                 async()=>{
                   const isDelete = await confirm("Do you really want to delete this article")
@@ -479,7 +714,9 @@ function ArticlesView({ articles }) {
       {showCreateModal && (
         <CreateArticleModal onClose={() => setShowCreateModal(false)} />
       )}
-
+      {viewingArticle &&(
+        <ArticleViewer article={viewingArticle} onClose={()=>setViewingArticle(null)}/>
+      )}
       {showEditModal && (
         <EditArticleModal
           article={editingArticle}
@@ -519,7 +756,7 @@ function ArticlesView({ articles }) {
   );
 }
 
-function ArticleCard({ article, onEdit, onDelete }) {
+function ArticleCard({ article, onEdit, onDelete,onView }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -582,7 +819,7 @@ function ArticleCard({ article, onEdit, onDelete }) {
         )}
 
         {/* Title */}
-        <h3 className="mb-3 text-lg font-bold leading-tight text-slate-900 line-clamp-2 hover:text-blue-600 hover:cursor-pointer">
+        <h3 onClick={onView} className="mb-3 text-lg font-bold leading-tight text-slate-900 line-clamp-2 hover:text-blue-600 hover:cursor-pointer">
           {article.title}
         </h3>
 

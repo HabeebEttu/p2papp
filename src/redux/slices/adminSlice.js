@@ -22,7 +22,6 @@ export const deleteUser = createAsyncThunk(
     try {
       const response = await adminService.deleteUser(userId);
 
-      
       dispatch(dashboardHome());
 
       return response.data;
@@ -44,7 +43,6 @@ export const createArticle = createAsyncThunk(
         coverImg
       );
 
-   
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -55,18 +53,32 @@ export const createArticle = createAsyncThunk(
 );
 export const deleteArticle = createAsyncThunk(
   "admin/article/delete",
-  async({articleId},{rejectWithValue,dispatch})=>{
+  async ({ articleId }, { rejectWithValue, dispatch }) => {
     try {
       const response = await adminService.deleteArticle(articleId);
-      dispatch(dashboardHome())
-      return response.data
+      dispatch(dashboardHome());
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "failed to connect to server"
       );
     }
   }
-)
+);
+export const removeAdmin = createAsyncThunk(
+  "admin/removeAdmin",
+  async ({ userId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await adminService.removeAdmin(userId);
+      dispatch(dashboardHome());
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to remove admin privileges"
+      );
+    }
+  }
+);
 export const editArticle = createAsyncThunk(
   "admin/article/edit",
   async ({ articleId, postData, coverImg }, { rejectWithValue, dispatch }) => {
@@ -78,8 +90,23 @@ export const editArticle = createAsyncThunk(
       );
 
       dispatch(dashboardHome());
-      
-      console.log('edited article',response.data)
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "failed to connect to server"
+      );
+    }
+  }
+);
+export const makeAdmin = createAsyncThunk(
+  "admin/admin/make",
+  async ({ userId }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await adminService.makeAdmin(userId);
+
+      dispatch(dashboardHome());
+      console.log(response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -162,6 +189,28 @@ const adminSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteArticle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(makeAdmin.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(makeAdmin.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(makeAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(removeAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeAdmin.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(removeAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
