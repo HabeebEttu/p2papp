@@ -71,6 +71,8 @@ export const removeAdmin = createAsyncThunk(
     try {
       const response = await adminService.removeAdmin(userId);
       dispatch(dashboardHome());
+      console.log(response.data);
+      
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -83,6 +85,7 @@ export const editArticle = createAsyncThunk(
   "admin/article/edit",
   async ({ articleId, postData, coverImg }, { rejectWithValue, dispatch }) => {
     try {
+      console.log(userId)
       const response = await adminService.editArticle(
         articleId,
         postData,

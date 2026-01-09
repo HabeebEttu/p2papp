@@ -8,6 +8,7 @@ import {
   deleteUser,
   editArticle,
   makeAdmin,
+  removeAdmin,
 } from "../redux/slices/adminSlice";
 import { toast } from "react-toastify";
 import { useConfirm } from "../hooks/Confirm";
@@ -429,7 +430,7 @@ function UsersView({ users, loading, user }) {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-3">
-            <div className="p-5 bg-white border rounded-xl border-slate-200 shadow-sm">
+            <div className="p-5 bg-white border shadow-sm rounded-xl border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Users</p>
@@ -441,7 +442,7 @@ function UsersView({ users, loading, user }) {
               </div>
             </div>
 
-            <div className="p-5 bg-white border rounded-xl border-slate-200 shadow-sm">
+            <div className="p-5 bg-white border shadow-sm rounded-xl border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">Administrators</p>
@@ -453,7 +454,7 @@ function UsersView({ users, loading, user }) {
               </div>
             </div>
 
-            <div className="p-5 bg-white border rounded-xl border-slate-200 shadow-sm">
+            <div className="p-5 bg-white border shadow-sm rounded-xl border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-500">Regular Users</p>
@@ -466,13 +467,10 @@ function UsersView({ users, loading, user }) {
             </div>
           </div>
         </div>
-
-        {/* Filters */}
         <div className="p-4 mb-6 bg-white border shadow-sm rounded-xl border-slate-200">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            {/* Search */}
             <div className="relative flex-1">
-              <FaSearch className="absolute text-slate-400 transform -translate-y-1/2 left-3 top-1/2" />
+              <FaSearch className="absolute transform -translate-y-1/2 text-slate-400 left-3 top-1/2" />
               <input
                 type="text"
                 placeholder="Search by username or email..."
@@ -542,11 +540,13 @@ function UsersView({ users, loading, user }) {
                       key={u.id}
                       className="transition-colors hover:bg-slate-50"
                     >
-                      {/* Username with Avatar */}
+                      
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-10 h-10 font-semibold text-white rounded-full bg-gradient-to-br from-blue-500 to-purple-500">
-                            {u.username.charAt(0).toUpperCase()}
+                          <div className="flex items-center justify-center w-10 h-10 overflow-hidden font-semibold text-white rounded-full bg-gradient-to-br from-blue-500 to-purple-500">
+                            {u?.profile.avatarUrl ? (<img src={
+                              u?.profile.avatarUrl.startsWith("http")?u.profile.avatarUrl:`http://localhost:8080${u?.profile?.avatarUrl}`
+                            }/>): u.username.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="font-semibold text-slate-900">{u.username}</p>
