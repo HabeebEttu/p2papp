@@ -34,5 +34,7 @@ const userService = {
       },
     });
   },
+  getArticles: (userId) => api.get(`/profile/${userId}/articles`),
+  getHomeArticles:()=>api.get(`/articles/home`)
 };
 export default userService;

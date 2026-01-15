@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSelector } from "react-redux";
 import { FaRocket } from "react-icons/fa";
 import { redirect, useNavigate } from 'react-router-dom';
@@ -6,9 +6,12 @@ import { redirect, useNavigate } from 'react-router-dom';
 export default function Dashboard() {
   const { user ,isAuthenticated} = useSelector((state) => state.auth);
   const navigate = useNavigate()
-  if (!isAuthenticated) {
+  
+  useEffect(() => {
+    if (!isAuthenticated) {
     navigate('/login')
   }
+  },[isAuthenticated,navigate])
   const stats = {
     totalXP: user?.profile?.xp || 0,
     articlesRead: user?.profile?.articlesRead || 0,

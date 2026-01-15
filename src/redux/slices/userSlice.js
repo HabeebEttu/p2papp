@@ -41,7 +41,18 @@ export const updateUserProfile = createAsyncThunk(
     }
   }
 );
-
+export const getHomeArticles = createAsyncThunk(
+  "user/getArticles/home",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await userService.getHomeArticles()
+      return res.data
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error?.response?.data?.message || 'failed to connect with server')
+    }
+  }
+)
 export const uploadAvatar = createAsyncThunk(
   "user/uploadAvatar",
   async ({ userId, file }, { rejectWithValue }) => {
@@ -67,6 +78,7 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  homeArticles:[]
 };
 
 const userSlice = createSlice({
@@ -132,7 +144,26 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
         state.success = false;
-      });
+      })
+      .addCase(getHomeArticles.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
+        
+      })
+      .addCase(getHomeArticles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.homeArticles = action.payload.articles;
+        
+        state.success = true;
+      })
+      .addCase(
+        getHomeArticles.rejected, (state, action) => {
+          state.loading = false
+          state.error = action.payload
+          console.log(action.payload);
+          console.log(action);
+}
+      );
   },
 });
 
