@@ -45,6 +45,7 @@ import {
 } from "react-icons/fa";
 import CreateArticleModal from "../components/ArticleModal";
 import EditArticleModal, { ArticleViewer } from "../components/EditArticleModal";
+import QuizzesView from "../components/QuizzesView";
 
 export default function AdminDashboard() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -876,27 +877,6 @@ function ArticleCard({ article, onEdit, onDelete,onView }) {
 
 
 
-function QuizzesView() {
-  return (
-    <div className="flex-1 p-4 overflow-y-auto md:p-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-slate-900">Quiz Management</h2>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700">
-            <FaPlus className="text-[20px]" />
-            Create Quiz
-          </button>
-        </div>
-        <div className="p-8 text-center bg-white border shadow-sm rounded-xl border-slate-200">
-          <FaQuestionCircle className="inline-block text-[48px] text-slate-300" />
-          <p className="mt-4 text-slate-500">
-            No quizzes yet. Create your first quiz!
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function VideosView() {
   return (

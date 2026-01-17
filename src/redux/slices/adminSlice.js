@@ -1,11 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import adminService from "../../services/admin";
+import { quizService } from "../../services/quizzes/quizService";
+import { fetchQuizzes } from "./quizSlice";
 
 export const dashboardHome = createAsyncThunk(
   "admin/home",
   async (_, { rejectWithValue }) => {
     try {
       const response = await adminService.getAdminDashboard();
+      console.log(response.data);
+      
       return response.data;
     } catch (error) {
       console.error("API Error:", error);
@@ -16,6 +20,20 @@ export const dashboardHome = createAsyncThunk(
   }
 );
 
+export const deleteQuiz = createAsyncThunk(
+  "quiz/delete",
+  async ({ quizId }, { rejectWithValue, dispatch }) => {
+    try {
+      await quizService.deleteQuiz(quizId);
+      dispatch(fetchQuizzes({ page: 0, size: 10 }));
+      return quizId;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete quiz"
+      );
+    }
+  }
+);
 export const deleteUser = createAsyncThunk(
   "admin/deleteUser",
   async ({ userId }, { rejectWithValue, dispatch }) => {
@@ -61,6 +79,22 @@ export const deleteArticle = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "failed to connect to server"
+      );
+    }
+  }
+);
+export const createQuiz = createAsyncThunk(
+  "quiz/create",
+  async ({ userId, quizData }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await quizService.createQuiz(userId, quizData);
+      dispatch(fetchQuizzes({ page: 0, size: 10 }));
+      console.log(response.data);
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create quiz"
       );
     }
   }
@@ -214,6 +248,26 @@ const adminSlice = createSlice({
         state.loading = false;
       })
       .addCase(removeAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      }).addCase(createQuiz.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createQuiz.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(createQuiz.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteQuiz.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteQuiz.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(deleteQuiz.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
