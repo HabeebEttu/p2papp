@@ -23,9 +23,9 @@ function QuizList({
   onPageChange,
 }) {
   const dispatch = useDispatch();
-    const {confirm, ConfirmDialog} = useConfirm()
+  const { confirm, ConfirmDialog } = useConfirm();
   const handleDelete = async (quizId, e) => {
-      e.stopPropagation();
+    e.stopPropagation();
     const confirmation = await confirm(
       "Are you sure you want to delete this quiz?"
     );
@@ -46,9 +46,20 @@ function QuizList({
     };
     return colors[category] || colors.OTHER;
   };
-
+  const categoryMap = {
+    CLOUD_COMPUTING: "Cloud Computing",
+    MOBILE_DEV: "Mobile Development",
+    WEB_DEV: "Web Development",
+    DATA_SCIENCE: "Data Science",
+    GAME_DEV: "Game Development",
+    AI: "Artificial Development",
+    BLOCKCHAIN: "Block Chain",
+    CYBER_SECURITY: "Cyber Security",
+    DEVOPS: "Devops"
+  };
   return (
     <>
+      <ConfirmDialog />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Quiz Management</h2>
@@ -93,13 +104,12 @@ function QuizList({
       ) : (
         <>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {quizzes.map((quiz,index) => (
+            {quizzes.map((quiz, index) => (
               <div
                 key={quiz.id}
                 className="overflow-hidden transition-all bg-white border shadow-sm cursor-pointer rounded-xl border-slate-200 hover:shadow-md"
                 onClick={() => onTakeQuiz(quiz.id)}
               >
-                {/* Card Header */}
                 <div className="p-6 pb-4">
                   <div className="flex items-start justify-between mb-3">
                     <span
@@ -107,7 +117,7 @@ function QuizList({
                         index
                       )}`}
                     >
-                      {quiz.category}
+                      {categoryMap[quiz.category]}
                     </span>
                     <button
                       onClick={(e) => handleDelete(quiz.id, e)}
@@ -124,7 +134,6 @@ function QuizList({
                     {quiz.description}
                   </p>
 
-                  {/* Quiz Stats */}
                   <div className="grid grid-cols-3 gap-3 pb-4 mb-4 border-b border-slate-200">
                     <div className="text-center">
                       <div className="flex items-center justify-center mb-1">
