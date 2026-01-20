@@ -39,7 +39,6 @@ export const updateQuiz = createAsyncThunk(
     try {
       const response = await adminService.updateQuiz(quizId, quizData);
       dispatch(fetchQuizzes({ page: 0, size: 10 }));
-      console.log(response.data);
       
       return response.data;
     } catch (error) {
@@ -107,7 +106,6 @@ export const createQuiz = createAsyncThunk(
     try {
       const response = await quizService.createQuiz(userId, quizData);
       dispatch(fetchQuizzes({ page: 0, size: 10 }));
-      console.log(response.data);
       
       return response.data;
     } catch (error) {
@@ -123,7 +121,6 @@ export const removeAdmin = createAsyncThunk(
     try {
       const response = await adminService.removeAdmin(userId);
       dispatch(dashboardHome());
-      console.log(response.data);
       
       return response.data;
     } catch (error) {
@@ -137,7 +134,6 @@ export const editArticle = createAsyncThunk(
   "admin/article/edit",
   async ({ articleId, postData, coverImg }, { rejectWithValue, dispatch }) => {
     try {
-      console.log(userId)
       const response = await adminService.editArticle(
         articleId,
         postData,
@@ -161,7 +157,6 @@ export const makeAdmin = createAsyncThunk(
       const response = await adminService.makeAdmin(userId);
 
       dispatch(dashboardHome());
-      console.log(response);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -300,7 +295,6 @@ const adminSlice = createSlice({
       .addCase(updateQuiz.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        console.log(action.payload);
         
       });
   },

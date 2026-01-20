@@ -7,7 +7,6 @@ export const fetchQuizzes = createAsyncThunk(
         try {
             const res = await quizService.getAllQuizzes(page, size)
             dispatch(getQuizCategories())
-            console.log(res.data);
             
             return res.data
         } catch (error) {
@@ -37,7 +36,6 @@ export const getQuizCategories = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await quizService.getCategories();
-            console.log(response,response.data)
             return response.data
         } catch (error) {
             return rejectWithValue(

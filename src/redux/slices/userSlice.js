@@ -48,7 +48,6 @@ export const getHomeArticles = createAsyncThunk(
       const res = await userService.getHomeArticles()
       return res.data
     } catch (error) {
-      console.log(error);
       return rejectWithValue(error?.response?.data?.message || 'failed to connect with server')
     }
   }
@@ -160,8 +159,6 @@ const userSlice = createSlice({
         getHomeArticles.rejected, (state, action) => {
           state.loading = false
           state.error = action.payload
-          console.log(action.payload);
-          console.log(action);
 }
       );
   },
