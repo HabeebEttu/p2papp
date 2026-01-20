@@ -5,9 +5,8 @@ import { updateQuiz } from "../redux/slices/adminSlice";
 
 export default function QuizEditModal({ onBack, quiz }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.quiz);
+  const { loading } = useSelector((state) => state.admin);
   const { categories } = useSelector((state) => state.quiz);
-console.log(quiz +12345);
 
   const categoryMap = {
     CLOUD_COMPUTING: "Cloud Computing",
@@ -68,19 +67,37 @@ console.log(quiz +12345);
     if (!validateForm()) {
       return;
     }
-
+    // String questionText,
+    //     QuestionType type,
+    //     Integer points,
+    //     List<String> options,
+    //     Integer correctAnswerIndex
+      const transformedData = {
+          title: formData.title,
+          description: formData.description,
+          timeLimit: formData.timeLimit,
+          passingScore: formData.passingScore,
+          xpReward: formData.xpReward,
+          questions: formData.questions.map((item, _) => {
+              return {
+                  type: "MULTIPLE_CHOICE",
+                  points: item.points,
+                  options: item.options.map((option, _) => option.optionText)
+              }
+          })
+      }
     try {
       await dispatch(
         updateQuiz({
           quizId: quiz.id,
-          quizData: formData,
+          quizData: transformedData,
         })
       ).unwrap();
 
       alert("Quiz updated successfully!");
       onBack();
     } catch (error) {
-      alert("Failed to update quiz: " + error);
+      alert("Failed to update quiz: ");
     }
   };
 

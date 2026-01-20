@@ -48,7 +48,7 @@ const adminService = {
     api.delete(`/admin/article/delete/${articleId}`),
   makeAdmin: (userId) => api.post(`/admin/make/${userId}`),
   removeAdmin: (userId) => api.post(`/admin/revoke/${userId}`),
-  updateQuiz: (quizId, quizData) => api.put(`/quizzes/${quizId}`, quizData),
+  updateQuiz: (quizId, quizData) => api.put(`/admin/quiz/${quizId}`, quizData),
 };
 export default adminService;
 const base64ToBlob = (base64String) => {

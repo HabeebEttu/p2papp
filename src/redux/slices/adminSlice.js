@@ -8,7 +8,6 @@ export const dashboardHome = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await adminService.getAdminDashboard();
-      console.log(response.data);
       
       return response.data;
     } catch (error) {
@@ -38,8 +37,10 @@ export const updateQuiz = createAsyncThunk(
   "quiz/update",
   async ({ quizId, quizData }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await quizService.updateQuiz(quizId, quizData);
+      const response = await adminService.updateQuiz(quizId, quizData);
       dispatch(fetchQuizzes({ page: 0, size: 10 }));
+      console.log(response.data);
+      
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -160,7 +161,7 @@ export const makeAdmin = createAsyncThunk(
       const response = await adminService.makeAdmin(userId);
 
       dispatch(dashboardHome());
-      console.log(response.data);
+      console.log(response);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -299,6 +300,8 @@ const adminSlice = createSlice({
       .addCase(updateQuiz.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        console.log(action.payload);
+        
       });
   },
 });
