@@ -12,12 +12,10 @@ export default function DashboardArticles() {
       try {
         await dispatch(getHomeArticles()).unwrap();
       } catch (error) {
-        console.log(error);
       }
     };
     loadHomeArticles();
   }, [dispatch]);
-console.log(homeArticles)
   return (
     <div className="p-6 border shadow rounded-xl bg-card text-card-foreground">
       <h3 className="mb-4 text-xl font-bold text-gray-800">Latest Articles</h3>
@@ -25,11 +23,9 @@ console.log(homeArticles)
         {
           homeArticles.map((item, index) => {
             const coverImgUrl = item?.coverImageUrl||"";
-            console.log(coverImgUrl);
             const completeUrl = coverImgUrl.startsWith("http")
               ? coverImgUrl
               : `http://localhost:8080${coverImgUrl}`;
-            console.log(completeUrl);
             const contentPeek = item.bodyMarkdown
   .replace(/#{1,6}\s?/g, '')        
   .replace(/\*\*/g, '')             

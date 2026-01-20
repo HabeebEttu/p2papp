@@ -13,7 +13,6 @@ export default function EditArticleModal({ article, onClose, onSave ,loading}) {
     category: article?.category || "",
     body: article?.bodyMarkdown || "",
   });
-  console.log(article);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(
     article?.coverImageUrl || ""
@@ -402,11 +401,6 @@ export const renderMarkdown = (markdown) => {
     html = html.replace(
       /\|(.+)\|\n\|[-:\s|]+\|\n((?:\|.+\|[\n\r]*)+)/gm,
       (match, header, rows) => {
-        console.log("=== TABLE DEBUG ===");
-        console.log("Full match:", JSON.stringify(match));
-        console.log("Header captured:", JSON.stringify(header));
-        console.log("Rows captured:", JSON.stringify(rows));
-        console.log("Rows split by newline:", rows.split("\n"));
         // Parse header
         const headers = header
           .split("|")
@@ -423,9 +417,6 @@ export const renderMarkdown = (markdown) => {
             return cleaned.split("|").map((cell) => cell.trim());
           })
           .filter((row) => row.length > 0 && row[0] !== ""); // Filter empty rows
-
-        console.log("Headers:", headers);
-        console.log("Rows:", rowsArray);
 
         // Build HTML table
         let tableHtml = '<div class="overflow-x-auto my-4">';

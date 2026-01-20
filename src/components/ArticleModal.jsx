@@ -185,21 +185,17 @@ function CreateArticleModal({ onClose }) {
   const {confirm,ConfirmDialog} = useConfirm()
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("1. Submit started");
 
     if (!formData.body || !formData.title || !formData.category) {
       toast.error("Fill all fields before proceeding");
       return;
     }
-    console.log("2. Validation passed");
 
     const confirmDialog = await confirm("Do you want to create this article");
-    console.log("3. Confirmation:", confirmDialog);
     if (!confirmDialog) return;
 
     try {
       const userId = user?.id;
-      console.log("4. About to dispatch");
 
       const result = await dispatch(
         createArticle({
@@ -208,16 +204,9 @@ function CreateArticleModal({ onClose }) {
           coverImg: imageFile,
         })
       ).unwrap();
-
-      console.log("5. Article created:", result);
-
       toast.success("Article created successfully");
-      console.log("6. Toast shown");
-
       onClose();
-      console.log("7. Modal closed");
     } catch (e) {
-      console.error("8. Error caught:", e);
       toast.error(e.message || "Failed to create article");
     }
   };
