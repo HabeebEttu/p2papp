@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../redux/slices/authSlice";
 import {
   dashboardHome,
@@ -115,17 +115,19 @@ function Sidebar({ currentView, setCurrentView, onLogout }) {
       <div className="flex flex-col justify-between h-full p-4">
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 px-2">
-            <div className="flex items-center justify-center text-xl font-bold text-blue-600 bg-blue-100 rounded-full aspect-square size-10">
-              P2
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-base font-bold leading-normal text-slate-900">
-                P2P Learn Admin
-              </h1>
-              <p className="text-xs font-normal leading-normal text-slate-500">
-                Administrator Panel
-              </p>
-            </div>
+            <Link to={"/dashboard"} className="flex items-center gap-3 px-2">
+              <div className="flex items-center justify-center text-xl font-bold text-blue-600 bg-blue-100 rounded-full aspect-square size-10">
+                P2
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-base font-bold leading-normal text-slate-900">
+                  P2P Learn Admin
+                </h1>
+                <p className="text-xs font-normal leading-normal text-slate-500">
+                  Administrator Panel
+                </p>
+              </div>
+            </Link>
           </div>
           <nav className="flex flex-col gap-2">
             {menuItems.map((item) => {

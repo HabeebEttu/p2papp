@@ -1,22 +1,34 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaArrowLeft, FaPlus, FaTrash, FaTimes } from "react-icons/fa";
-import {  getQuizCategories } from "../redux/slices/quizSlice";
-import { createQuiz } from "../redux/slices/adminSlice";
+import { updateQuiz } from "../redux/slices/adminSlice";
 
-function CreateQuiz({ onBack }) {
+export default function QuizEditModal({ onBack, quiz }) {
   const dispatch = useDispatch();
-  const { loading ,categories} = useSelector((state) => state.quiz);
-  const currentUser = useSelector((state) => state.auth.user);
+  const { loading } = useSelector((state) => state.quiz);
+  const { categories } = useSelector((state) => state.quiz);
+console.log(quiz +12345);
+
+  const categoryMap = {
+    CLOUD_COMPUTING: "Cloud Computing",
+    MOBILE_DEV: "Mobile Development",
+    WEB_DEV: "Web Development",
+    DATA_SCIENCE: "Data Science",
+    GAME_DEV: "Game Development",
+    AI: "Artificial Development",
+    BLOCKCHAIN: "Block Chain",
+    CYBER_SECURITY: "Cyber Security",
+    DEVOPS: "Devops",
+  };
 
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    timeLimit: 30,
-    passingScore: 70,
-    xpReward: 100,
-    questions: [],
+    title: quiz.title,
+    description: quiz.description,
+    category: quiz.category,
+    timeLimit: quiz.timeLimit,
+    passingScore: quiz.passingScore,
+    xpReward: quiz.xpReward,
+    questions: quiz.questions || [],
   });
 
   const [errors, setErrors] = useState({});
@@ -24,16 +36,16 @@ function CreateQuiz({ onBack }) {
   const validateForm = () => {
     const newErrors = {};
 
-                  if (!formData.title.trim()) {
-                    newErrors.title = "Title is required";
-                  }
-                  if (!formData.description.trim()) {
-                    newErrors.description = "Description is required";
-                  }
-                  if (!formData.category) {
-                    newErrors.category = "Category is required";
-                  }
-                  if (formData.questions.length === 0) {
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required";
+    }
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+    if (formData.questions.length === 0) {
       newErrors.questions = "At least one question is required";
     }
 
@@ -41,13 +53,35 @@ function CreateQuiz({ onBack }) {
       if (!q.questionText.trim()) {
         newErrors[`question_${index}`] = "Question text is required";
       }
-      if (q.options.some((opt) => !opt.trim())) {
+      if (q.options.some((opt) => !opt.optionText.trim())) {
         newErrors[`options_${index}`] = "All options must be filled";
       }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      await dispatch(
+        updateQuiz({
+          quizId: quiz.id,
+          quizData: formData,
+        })
+      ).unwrap();
+
+      alert("Quiz updated successfully!");
+      onBack();
+    } catch (error) {
+      alert("Failed to update quiz: " + error);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -58,6 +92,7 @@ function CreateQuiz({ onBack }) {
     });
   };
 
+  // Add a new question
   const addQuestion = () => {
     setFormData({
       ...formData,
@@ -67,13 +102,19 @@ function CreateQuiz({ onBack }) {
           questionText: "",
           type: "MULTIPLE_CHOICE",
           points: 10,
-          options: ["", "", "", ""],
+          options: [
+            { optionText: "", optionIndex: 0 },
+            { optionText: "", optionIndex: 1 },
+            { optionText: "", optionIndex: 2 },
+            { optionText: "", optionIndex: 3 },
+          ],
           correctAnswerIndex: 0,
         },
       ],
     });
   };
 
+  // Remove a question
   const removeQuestion = (index) => {
     const newQuestions = formData.questions.filter((_, i) => i !== index);
     setFormData({
@@ -82,6 +123,7 @@ function CreateQuiz({ onBack }) {
     });
   };
 
+  // Update question field
   const updateQuestion = (index, field, value) => {
     const newQuestions = [...formData.questions];
     newQuestions[index] = {
@@ -94,36 +136,52 @@ function CreateQuiz({ onBack }) {
     });
   };
 
+
   const updateOption = (questionIndex, optionIndex, value) => {
     const newQuestions = [...formData.questions];
-    newQuestions[questionIndex].options[optionIndex] = value;
+    newQuestions[questionIndex].options[optionIndex] = {
+      ...newQuestions[questionIndex].options[optionIndex],
+      optionText: value,
+    };
     setFormData({
       ...formData,
       questions: newQuestions,
     });
   };
-
   const addOption = (questionIndex) => {
     const newQuestions = [...formData.questions];
-    newQuestions[questionIndex].options.push("");
+    const newOptionIndex = newQuestions[questionIndex].options.length;
+    newQuestions[questionIndex].options.push({
+      optionText: "",
+      optionIndex: newOptionIndex,
+    });
     setFormData({
       ...formData,
       questions: newQuestions,
     });
   };
 
+  // Remove option from a question
   const removeOption = (questionIndex, optionIndex) => {
     const newQuestions = [...formData.questions];
     if (newQuestions[questionIndex].options.length > 2) {
       newQuestions[questionIndex].options = newQuestions[
         questionIndex
       ].options.filter((_, i) => i !== optionIndex);
+
+      // Re-index options
+      newQuestions[questionIndex].options.forEach((opt, idx) => {
+        opt.optionIndex = idx;
+      });
+
+      // Adjust correct answer index if needed
       if (newQuestions[questionIndex].correctAnswerIndex >= optionIndex) {
         newQuestions[questionIndex].correctAnswerIndex = Math.max(
           0,
           newQuestions[questionIndex].correctAnswerIndex - 1
         );
       }
+
       setFormData({
         ...formData,
         questions: newQuestions,
@@ -131,32 +189,8 @@ function CreateQuiz({ onBack }) {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      await dispatch(
-        createQuiz({
-          userId: currentUser.id,
-          quizData: formData,
-        })
-      ).unwrap();
-
-      alert("Quiz created successfully!");
-      onBack();
-    } catch (error) {
-      alert("Failed to create quiz: " + error);
-    }
-  };
-  const categoriesList = [
-    'Web Development','Mobile Development','Data Science','Game Development','Artificial Inelligence','Block Chain','Cyber Security','DevOps','Block Chain'
-  ]
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl ">
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
@@ -164,7 +198,7 @@ function CreateQuiz({ onBack }) {
         >
           <FaArrowLeft className="text-xl" />
         </button>
-        <h2 className="text-2xl font-bold text-slate-900">Create New Quiz</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Edit Quiz</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -183,7 +217,7 @@ function CreateQuiz({ onBack }) {
                 value={formData.title}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter quiz title"
+                placeholder="Enter updated quiz title"
               />
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">{errors.title}</p>
@@ -221,9 +255,9 @@ function CreateQuiz({ onBack }) {
                   className="w-full px-4 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select category</option>
-                  {categories.map((cat,index) => (
+                  {categories.map((cat, index) => (
                     <option key={cat} value={cat}>
-                      {categoriesList[index]}
+                      {categoryMap[cat]}
                     </option>
                   ))}
                 </select>
@@ -392,7 +426,7 @@ function CreateQuiz({ onBack }) {
                           />
                           <input
                             type="text"
-                            value={option}
+                            value={option.optionText}
                             onChange={(e) =>
                               updateOption(qIndex, oIndex, e.target.value)
                             }
@@ -435,12 +469,10 @@ function CreateQuiz({ onBack }) {
             disabled={loading}
             className="flex-1 px-6 py-3 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating..." : "Create Quiz"}
+            {loading ? "Updating..." : "Update Quiz"}
           </button>
         </div>
       </form>
     </div>
   );
 }
-
-export default CreateQuiz;

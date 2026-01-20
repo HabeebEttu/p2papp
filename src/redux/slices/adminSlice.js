@@ -34,6 +34,23 @@ export const deleteQuiz = createAsyncThunk(
     }
   }
 );
+export const updateQuiz = createAsyncThunk(
+  "quiz/update",
+  async ({ quizId, quizData }, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await quizService.updateQuiz(quizId, quizData);
+      dispatch(fetchQuizzes({ page: 0, size: 10 }));
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update quiz"
+      );
+    }
+  }
+);
+
+
+
 export const deleteUser = createAsyncThunk(
   "admin/deleteUser",
   async ({ userId }, { rejectWithValue, dispatch }) => {
@@ -250,7 +267,8 @@ const adminSlice = createSlice({
       .addCase(removeAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      }).addCase(createQuiz.pending, (state) => {
+      })
+      .addCase(createQuiz.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -268,6 +286,17 @@ const adminSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteQuiz.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateQuiz.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateQuiz.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateQuiz.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
