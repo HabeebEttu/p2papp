@@ -151,17 +151,21 @@ console.log(quiz +12345);
   const addOption = (questionIndex) => {
     const newQuestions = [...formData.questions];
     const newOptionIndex = newQuestions[questionIndex].options.length;
-    newQuestions[questionIndex].options.push({
-      optionText: "",
-      optionIndex: newOptionIndex,
-    });
+      newQuestions[questionIndex] = {
+        ...newQuestions[questionIndex],
+        options: [
+          ...newQuestions[questionIndex].options,
+          {
+            optionText: "",
+            optionIndex: newOptionIndex,
+          },
+        ],
+      };
     setFormData({
       ...formData,
       questions: newQuestions,
     });
   };
-
-  // Remove option from a question
   const removeOption = (questionIndex, optionIndex) => {
     const newQuestions = [...formData.questions];
     if (newQuestions[questionIndex].options.length > 2) {
